@@ -1,0 +1,22 @@
+enum CollectionType {
+    LINK
+    WORD_EXPLANATION
+}
+
+model Collection {
+    id        String         @id @default(uuid())
+    type      CollectionType @default(LINK)
+    content   String?
+    topic     String?
+    // Joined fields
+    owner     User           @relation("CollectionCreator", fields: [createdBy], references: [id])
+    // Audit fields
+    createdAt DateTime       @default(now())
+    createdBy String
+    updatedAt DateTime       @updatedAt
+    updatedBy String?
+    deletedAt DateTime?
+    deletedBy String?
+
+    @@map("collection")
+}

@@ -1,0 +1,45 @@
+enum Role {
+    USER
+    ADMIN
+}
+
+model User {
+    id                      String            @id @default(uuid())
+    role                    Role              @default(USER)
+    email                   String            @unique
+    username                String            @unique
+    hashedPassword          String
+    displayName             String?
+    fullName                String
+    photo                   String?
+    // Joined fields
+    notes                   Note[]            @relation("NoteCreator")
+    collections             Collection[]      @relation("CollectionCreator")
+    createdServiceProviders ServiceProvider[]
+    createdServices         Service[]
+    createdIntegrations     Integration[]
+    // Audit fields
+    createdAt               DateTime          @default(now())
+    createdBy               String?
+    updatedAt               DateTime          @updatedAt
+    updatedBy               String?
+    deletedAt               DateTime?
+    deletedBy               String?
+
+    @@map("user")
+}
+
+model APIKey {
+    id        String    @id @default(uuid())
+    value     String
+    expireAt  DateTime
+    // Audit fields
+    createdAt DateTime  @default(now())
+    createdBy String?
+    updatedAt DateTime  @updatedAt
+    updatedBy String?
+    deletedAt DateTime?
+    deletedBy String?
+
+    @@map("api_key")
+}
