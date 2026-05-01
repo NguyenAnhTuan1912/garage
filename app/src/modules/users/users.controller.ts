@@ -10,6 +10,7 @@ import {
   Query,
 } from "@nestjs/common";
 import { Role } from "@prisma/client";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 
 // Import decorators
 import { Roles } from "src/common/decorators/roles.decorator";
@@ -28,14 +29,34 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindManyUserDto } from "./dto/find-user.dto";
 
+@ApiTags("User")
+@ApiBearerAuth()
 @Controller("users")
 @UseGuards(JwtAuthGuard, RolesGuard) // Bảo vệ toàn bộ controller
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
+  @Get("me")
+  @Roles(Role.ADMIN, Role.USER)
+  async me(@GetCurrentUser() user: User) {
+    return this.usersService.find({ params: { id: user.id } });
+  }
+
+  @Patch("me")
+  @Roles(Role.ADMIN, Role.USER)
+  async updateMe(
+    @Body() updateUserDto: UpdateUserDto,
+    @GetCurrentUser() executor: User
+  ) {
+    return this.usersService.update({
+      params: { id: executor.id, data: updateUserDto },
+      options: { executorId: executor.id },
+    });
+  }
+
   @Post()
   @Roles(Role.ADMIN)
-  create(
+  async create(
     @Body() createUserDto: CreateUserDto,
     @GetCurrentUser() executor: User
   ) {
@@ -46,17 +67,20 @@ export class UsersController {
   }
 
   @Get()
-  findAll(@Query() query: FindManyUserDto) {
+  @Roles(Role.ADMIN)
+  async findAll(@Query() query: FindManyUserDto) {
     return this.usersService.findMany({ params: query });
   }
 
   @Get(":id")
+  @Roles(Role.ADMIN)
   findOne(@Param("id") id: string) {
     return this.usersService.find({ params: { id } });
   }
 
   @Patch(":id")
-  update(
+  @Roles(Role.ADMIN)
+  async update(
     @Param("id") id: string,
     @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUser() executor: User
@@ -69,7 +93,7 @@ export class UsersController {
 
   @Delete(":id")
   @Roles(Role.ADMIN)
-  remove(@Param("id") id: string, @GetCurrentUser() executor: User) {
+  async remove(@Param("id") id: string, @GetCurrentUser() executor: User) {
     return this.usersService.remove({
       params: { id },
       options: { executorId: executor.id },
