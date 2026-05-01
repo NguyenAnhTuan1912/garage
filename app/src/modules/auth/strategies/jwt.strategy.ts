@@ -4,11 +4,18 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 
 import "dotenv/config";
 
+// Import types
+import type { Request } from "express";
+
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+      jwtFromRequest: ExtractJwt.fromExtractors([
+        (request: Request) => {
+          return request?.cookies?.["accessToken"];
+        },
+      ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET!,
     });

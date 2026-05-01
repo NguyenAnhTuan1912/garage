@@ -48,10 +48,14 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUser() executor: User
   ) {
-    return this.usersService.update({
+    const user = await this.usersService.update({
       params: { id: executor.id, data: updateUserDto },
       options: { executorId: executor.id },
     });
+
+    return {
+      data: user,
+    };
   }
 
   @Post()
@@ -60,22 +64,35 @@ export class UsersController {
     @Body() createUserDto: CreateUserDto,
     @GetCurrentUser() executor: User
   ) {
-    return this.usersService.insert({
+    const user = await this.usersService.insert({
       params: createUserDto,
       options: { executorId: executor.id },
     });
+
+    return {
+      data: user,
+    };
   }
 
   @Get()
   @Roles(Role.ADMIN)
-  async findAll(@Query() query: FindManyUserDto) {
-    return this.usersService.findMany({ params: query });
+  async findMany(@Query() query: FindManyUserDto) {
+    const data = await this.usersService.findMany({ params: query });
+
+    return {
+      data: data.users,
+      meta: data.meta
+    };
   }
 
   @Get(":id")
   @Roles(Role.ADMIN)
-  findOne(@Param("id") id: string) {
-    return this.usersService.find({ params: { id } });
+  async findOne(@Param("id") id: string) {
+    const user = await this.usersService.find({ params: { id } });
+
+    return {
+      data: user,
+    };
   }
 
   @Patch(":id")
@@ -85,18 +102,26 @@ export class UsersController {
     @Body() updateUserDto: UpdateUserDto,
     @GetCurrentUser() executor: User
   ) {
-    return this.usersService.update({
+    const user = await this.usersService.update({
       params: { id, data: updateUserDto },
       options: { executorId: executor.id },
     });
+
+    return {
+      data: user,
+    };
   }
 
   @Delete(":id")
   @Roles(Role.ADMIN)
   async remove(@Param("id") id: string, @GetCurrentUser() executor: User) {
-    return this.usersService.remove({
+    const user = await this.usersService.remove({
       params: { id },
       options: { executorId: executor.id },
     });
+
+    return {
+      data: user,
+    };
   }
 }

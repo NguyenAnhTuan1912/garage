@@ -52,8 +52,10 @@ export class AuthController {
 
     // Trả về Access Token và User như cũ qua body
     return {
-      accessToken: result.accessToken,
-      user: result.user,
+      data: {
+        accessToken: result.accessToken,
+        user: result.user,
+      },
     };
   }
 
@@ -61,8 +63,12 @@ export class AuthController {
   @ApiOperation({ summary: "Làm mới lại access token" })
   @Roles(Role.ADMIN, Role.ADMIN)
   async refreshAccessToken(@GetCurrentUser() user: User) {
-    return this.refreshTokenService.refreshAccessToken({
+    const result = await this.refreshTokenService.refreshAccessToken({
       params: { userId: user.id },
     });
+
+    return {
+      data: result,
+    };
   }
 }

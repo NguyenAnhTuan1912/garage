@@ -10,6 +10,8 @@ import {
   IBaseCRUDServiceMap,
   TActionOptions,
 } from "src/common/interfaces/service.interface";
+// Import common/helpers
+import { encodeCursor, decodeCursor } from "src/common/helpers/cursor";
 
 // Import DTO
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -26,7 +28,7 @@ interface IUsersServiceSchemaMap {
   };
   findMany: {
     input: { params: FindManyUserDto; options?: TActionOptions };
-    output: User[];
+    output: { users: User[]; meta: { hasNextPage: boolean; cursor: string | null; } };
   };
   insert: {
     input: { params: CreateUserDto; options?: TActionOptions };
@@ -95,6 +97,7 @@ export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap>
 
   async findMany(input: IUsersServiceSchemaMap["findMany"]["input"]) {
     const { params, options } = input;
+    let { take = 10, cursor, ...restParams } = params;
     const where: Prisma.UserWhereInput = {
       ...params.where,
     };
@@ -103,12 +106,47 @@ export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap>
       this.prisma.excludeDeleted(where);
     }
 
+    const [createdAt, id] = cursor ? decodeCursor(cursor) : [null, null];
     const users = await this.prisma.user.findMany({
-      ...params,
-      where,
+      ...restParams,
+      take: take + 1,
+      where: {
+        ...where,
+        ...(createdAt && id ? {
+          OR: [
+            { createdAt: { lt: createdAt } },
+            {
+              AND: [
+                { createdAt: createdAt },
+                { id: { lt: id } },
+              ],
+            },
+          ],
+        } : {}),
+      },
+      orderBy: [
+        { createdAt: 'desc' },
+        { id: 'desc' },
+      ],
     });
 
-    return users.map((user) => new User(user));
+    const hasNextPage = users.length > take;
+    
+    const results = hasNextPage ? users.slice(0, take) : users;
+
+    let nextCursor: string | null = null;
+    if (results.length > 0 && hasNextPage) {
+      const lastRecord = results[results.length - 1];
+      nextCursor = encodeCursor(lastRecord.id, lastRecord.createdAt);
+    }
+
+    return {
+      users: users.map((user) => new User(user)),
+      meta: {
+        hasNextPage,
+        cursor: nextCursor,
+      }
+    };
   }
 
   async find(input: IUsersServiceSchemaMap["find"]["input"]) {

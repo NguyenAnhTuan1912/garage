@@ -21,7 +21,7 @@ export class FindManyUserDto {
   take?: number = 10;
 
   @IsOptional()
-  cursor?: Prisma.UserWhereUniqueInput;
+  cursor?: string;
 
   @IsOptional()
   where?: Prisma.UserWhereInput;

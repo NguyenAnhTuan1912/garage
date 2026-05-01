@@ -4,6 +4,7 @@ import "dotenv/config";
 import { NestFactory, Reflector } from "@nestjs/core";
 import { ValidationPipe, ClassSerializerInterceptor } from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
+import cookieParser from 'cookie-parser';
 
 // Import common
 import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
@@ -14,6 +15,7 @@ import { AppModule } from "./app.module";
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true, // Loại bỏ các field lạ không có trong DTO
@@ -22,6 +24,7 @@ async function bootstrap() {
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));
   app.useGlobalFilters(new AllExceptionsFilter());
+  app.setGlobalPrefix("api");
 
   const config = new DocumentBuilder()
     .setTitle("Garage Management API")
