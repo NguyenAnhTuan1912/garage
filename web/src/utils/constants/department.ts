@@ -1,0 +1,2 @@
+export const MIN_DEPARTMENT_NAME_LENGTH = 10;
+export const MAX_DEPARTMENT_NAME_LENGTH = 65;

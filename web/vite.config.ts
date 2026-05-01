@@ -3,7 +3,6 @@ import tailwindcss from "@tailwindcss/vite"
 import react from "@vitejs/plugin-react"
 import { defineConfig } from "vite"
 
-// https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -12,6 +11,16 @@ export default defineConfig({
     },
   },
   server: {
-    port: 5500
+    port: 5500,
+    proxy: {
+      // Proxy các request bắt đầu bằng /api sang Backend NestJS
+      '/api': {
+        target: 'http://localhost:10000', // Port mặc định của NestJS
+        changeOrigin: true,
+        // Nếu backend của bạn đã có sẵn prefix /api thì không cần rewrite
+        // Nếu backend chưa có /api, hãy dùng dòng dưới:
+        // rewrite: (path) => path.replace(/^\/api/, '') 
+      },
+    },
   }
-})
+});
