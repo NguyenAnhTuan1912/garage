@@ -11,19 +11,22 @@ import {
 } from "@nestjs/common";
 import { Role } from "@prisma/client";
 
+// Import decorators
+import { Roles } from "src/common/decorators/roles.decorator";
+import { GetCurrentUser } from "src/common/decorators/current-user.decorator";
+
+// Import entities
+import { User } from "./entities/user.entity";
+
+// Import guards
+import { JwtAuthGuard } from "src/modules/auth/guards/jwt-auth.guard";
+import { RolesGuard } from "src/modules/auth/guards/roles.guard";
+
 // Import services
 import { UsersService } from "./users.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { FindManyUserDto } from "./dto/find-user.dto";
-
-// Import decorators
-import { Roles } from "src/common/decorators/roles.decorator";
-import { GetCurrentUserId } from "src/common/decorators/get-current-user-id.decorator";
-
-// Import guards
-import { JwtAuthGuard } from "src/modules/auth/guards/jwt-auth.guard";
-import { RolesGuard } from "src/modules/auth/guards/roles.guard";
 
 @Controller("users")
 @UseGuards(JwtAuthGuard, RolesGuard) // Bảo vệ toàn bộ controller
@@ -34,36 +37,42 @@ export class UsersController {
   @Roles(Role.ADMIN)
   create(
     @Body() createUserDto: CreateUserDto,
-    @GetCurrentUserId() executorId: string
+    @GetCurrentUser() executor: User
   ) {
-    return this.usersService.create(createUserDto);
+    return this.usersService.insert({
+      params: createUserDto,
+      options: { executorId: executor.id },
+    });
   }
 
   @Get()
-  findAll(
-    @Query() query: FindManyUserDto,
-    @GetCurrentUserId() executorId: string
-  ) {
-    return this.usersService.findMany(query);
+  findAll(@Query() query: FindManyUserDto) {
+    return this.usersService.findMany({ params: query });
   }
 
   @Get(":id")
   findOne(@Param("id") id: string) {
-    return this.usersService.find({ id });
+    return this.usersService.find({ params: { id } });
   }
 
   @Patch(":id")
   update(
     @Param("id") id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @GetCurrentUserId() executorId: string
+    @GetCurrentUser() executor: User
   ) {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update({
+      params: { id, data: updateUserDto },
+      options: { executorId: executor.id },
+    });
   }
 
   @Delete(":id")
   @Roles(Role.ADMIN)
-  remove(@Param("id") id: string, @GetCurrentUserId() executorId: string) {
-    return this.usersService.remove(id);
+  remove(@Param("id") id: string, @GetCurrentUser() executor: User) {
+    return this.usersService.remove({
+      params: { id },
+      options: { executorId: executor.id },
+    });
   }
 }

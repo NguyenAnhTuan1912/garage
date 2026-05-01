@@ -13,3 +13,17 @@ export const GetCurrentUserId = createParamDecorator(
     return user?.id;
   }
 );
+
+/**
+ * Decorator dùng để lấy thông tin của người dùng hiện tại từ Request.
+ * Yêu cầu: Route phải được bảo vệ bởi JwtAuthGuard để Passport gán thông tin user vào request.
+ */
+export const GetCurrentUser = createParamDecorator(
+  (data: undefined, context: ExecutionContext): string => {
+    const request = context.switchToHttp().getRequest();
+    const user = request.user;
+
+    // Trong Passport JwtStrategy, chúng ta đã map payload.sub thành user.id
+    return user;
+  }
+);

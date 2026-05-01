@@ -11,6 +11,7 @@ import { UsersModule } from "../users/users.module";
 
 // Import services
 import { AuthService } from "./auth.service";
+import { RefreshTokenService } from "./refresh-token.service";
 
 // Import strategies
 import { JwtStrategy } from "./strategies/jwt.strategy";
@@ -22,15 +23,12 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
       inject: [ConfigService],
       useFactory: (config: ConfigService) => ({
         secret: config.get<string>("JWT_SECRET"),
-        signOptions: {
-          expiresIn: "15m",
-        },
       }),
     }),
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
+  providers: [AuthService, RefreshTokenService, JwtStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

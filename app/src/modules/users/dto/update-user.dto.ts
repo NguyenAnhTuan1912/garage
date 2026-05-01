@@ -1,4 +1,4 @@
-import { PartialType, ApiProperty } from "@nestjs/swagger";
+import { ApiProperty } from "@nestjs/swagger";
 import { IsOptional, IsString, IsUrl } from "class-validator";
 
 // Import common
@@ -7,10 +7,7 @@ import {
   EPhotoErrMessage,
 } from "src/common/errors/message-code/index.js";
 
-// Import DTO
-import { CreateUserDto } from "./create-user.dto.js";
-
-export class UpdateUserDto extends PartialType(CreateUserDto) {
+export class UpdateUserDto {
   @ApiProperty({ example: "https://avatar.com/tuan.jpg", required: false })
   @IsUrl({}, { message: EPhotoErrMessage.INVALID })
   @IsOptional()

@@ -39,3 +39,10 @@ export enum EPhotoErrMessage {
   MIN_LENGTH = "MIN_LENGTH_PHOTO",
   MAX_LENGTH = "MAX_LENGTH_PHOTO",
 }
+
+export enum EUserIdErrMessage {
+  INVALID = "INVALID_USERID",
+  EMPTY = "EMPTY_USERID",
+  MIN_LENGTH = "MIN_LENGTH_USERID",
+  MAX_LENGTH = "MAX_LENGTH_USERID",
+}

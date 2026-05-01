@@ -6,6 +6,10 @@ import { Prisma } from "@prisma/client";
 import { PrismaService } from "src/common/services/prisma.service";
 import { NotFoundException } from "src/common/errors/class/not-found-error";
 import { ExistedException } from "src/common/errors/class/bad-request";
+import {
+  IBaseCRUDServiceMap,
+  TActionOptions,
+} from "src/common/interfaces/service.interface";
 
 // Import DTO
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -15,8 +19,34 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 // Import entities
 import { User } from "./entities/user.entity";
 
+interface IUsersServiceSchemaMap {
+  find: {
+    input: { params: FindUserDto; options?: TActionOptions };
+    output: User;
+  };
+  findMany: {
+    input: { params: FindManyUserDto; options?: TActionOptions };
+    output: User[];
+  };
+  insert: {
+    input: { params: CreateUserDto; options?: TActionOptions };
+    output: User;
+  };
+  update: {
+    input: {
+      params: { id: string; data: UpdateUserDto };
+      options?: TActionOptions;
+    };
+    output: User;
+  };
+  remove: {
+    input: { params: { id: string }; options?: TActionOptions };
+    output: boolean;
+  };
+}
+
 @Injectable()
-export class UsersService {
+export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap> {
   constructor(private prisma: PrismaService) {}
 
   /**
@@ -31,34 +61,40 @@ export class UsersService {
     return hashed;
   }
 
-  async create(createUserDto: CreateUserDto): Promise<User> {
+  async insert(input: IUsersServiceSchemaMap["insert"]["input"]) {
+    const { params, options } = input;
     // Find user
     const user = await this.find({
-      email: createUserDto.email,
-      username: createUserDto.username,
+      params: {
+        email: params.email,
+        username: params.username,
+      },
     });
 
     if (user) {
       throw new ExistedException("user");
     }
 
-    const { password, ...data } = createUserDto;
+    const { password, ...data } = params;
     const hashed = await this.hashPassword(password);
-    const input = new User({
+    const draftUser = new User({
       ...data,
       hashedPassword: hashed,
     });
+
+    if (options && options?.executorId) {
+      draftUser.createdBy = options?.executorId;
+    }
+
     const newUser = await this.prisma.user.create({
-      data: input,
+      data: draftUser,
     });
 
     return new User(newUser);
   }
 
-  async findMany(
-    params: FindManyUserDto,
-    options?: { includeDeleted: boolean }
-  ): Promise<User[]> {
+  async findMany(input: IUsersServiceSchemaMap["findMany"]["input"]) {
+    const { params, options } = input;
     const where: Prisma.UserWhereInput = {
       ...params.where,
     };
@@ -75,10 +111,8 @@ export class UsersService {
     return users.map((user) => new User(user));
   }
 
-  async find(
-    params: FindUserDto,
-    options?: { includeDeleted: boolean }
-  ): Promise<User> {
+  async find(input: IUsersServiceSchemaMap["find"]["input"]) {
+    const { params, options } = input;
     const { email, username, id } = params;
     const where: Prisma.UserWhereInput = {
       OR: [{ email }, { username }, { id }].filter(
@@ -101,35 +135,40 @@ export class UsersService {
     return new User(user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<User> {
+  async update(input: IUsersServiceSchemaMap["update"]["input"]) {
+    const { params, options } = input;
     // Find user
-    const user = await this.find({ id });
+    const user = await this.find({ params: { id: params.id } });
 
     if (!user) {
       throw new NotFoundException("user");
     }
 
     const newUser = await this.prisma.user.update({
-      data: updateUserDto,
-      where: { id, deletedAt: null },
+      data: {
+        ...params.data,
+        updatedBy: options?.executorId,
+      },
+      where: { id: params.id, deletedAt: null },
     });
 
     return new User(newUser);
   }
 
-  async remove(id: string) {
+  async remove(input: IUsersServiceSchemaMap["remove"]["input"]) {
+    const { params, options } = input;
     // Find user
-    const user = await this.find({ id });
+    const user = await this.find({ params: { id: params.id } });
 
     if (!user) {
       throw new NotFoundException("user");
     }
 
-    const newUser = await this.prisma.user.update({
+    await this.prisma.user.update({
       data: { deletedAt: new Date() },
-      where: { id },
+      where: { id: params.id },
     });
 
-    return new User(newUser);
+    return true;
   }
 }
