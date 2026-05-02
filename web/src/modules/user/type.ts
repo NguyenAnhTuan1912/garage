@@ -1,15 +1,9 @@
 export type TUser = {
   id: number;
-  role: {
-    id: number;
-    value: string;
-    name: string;
-  };
+  role: string;
   fullName: string;
+  displayName: string;
   photo: string;
-  username: string;
-  birthDate?: string;
-  gender?: string;
 };
 
 export type TUserUpdate = Partial<Omit<TUser, "id" | "role">>;

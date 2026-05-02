@@ -17,12 +17,13 @@ import { Spinner } from "@/components/ui/spinner";
 
 // Import modules
 import { useSignInMutation } from "@/modules/auth/query";
+import { userStateSetters } from "@/modules/user/state";
 
 // Import helpers / utils
 import { cn } from "@/lib/utils";
 
 // Import types
-import type { AxiosError, AxiosResponse } from "axios";
+import type { AxiosError } from "axios";
 
 export const signInSchema = z.object({
   username: z.string().min(2, "Username must be at least 2 characters").max(64),
@@ -45,10 +46,13 @@ export function SigninForm({
     },
     onSubmit: async ({ value }) => {
       try {
-        const res: AxiosResponse = await signInMutation.mutateAsync(value);
-        const data = res.data.data as any;
+        const res = await signInMutation.mutateAsync(value);
+        const data = res.data.data!;
 
-        toast.success(data.message, { toasterId: "global" });
+        toast.success("Sign in successfully", { toasterId: "global" });
+
+        userStateSetters.setUser(data.user);
+        userStateSetters.setIsAuthenticated(true);
       } catch (e) {
         const err = e as AxiosError;
         const data = err.response?.data as any;
@@ -56,6 +60,9 @@ export function SigninForm({
         toast.error(data?.error?.message ?? "Login failed", {
           toasterId: "global",
         });
+
+        userStateSetters.setUser(undefined);
+        userStateSetters.setIsAuthenticated(false);
       }
     },
   });
@@ -73,7 +80,7 @@ export function SigninForm({
           <div className="flex flex-col items-center gap-2 text-center">
             <h1 className="text-2xl font-bold">Welcome back</h1>
             <p className="text-muted-foreground text-balance">
-              Login to your Tnditor account
+              Login to your Garage account
             </p>
           </div>
 

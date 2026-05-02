@@ -23,15 +23,18 @@ type TKindOfOnFulfilled = {
 }
 
 type TErrorData = {
-  title: string
-  message?: string
-  code: string
+  message: string;
+  code: string;
+  success: boolean;
+  statusCode: number;
+  timestamp: string;
+  path: string;
 }
 
 type TResPayload<TData, TMeta = any> = {
-  error: TErrorData | null
-  data: TData
-  meta: TMeta
+  data?: TData
+  error?: TErrorData | null
+  meta?: TMeta
 }
 
 type TResponse<T> = AxiosResponse<TResPayload<T>>

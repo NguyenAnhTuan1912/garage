@@ -23,11 +23,6 @@ export default function AppRoutes() {
     (refreshTokensMutation.isPending || !isAuthenticated) &&
     !refreshTokensMutation.isError;
 
-  console.log("Show loading:", loadingShown);
-  console.log("isAuthenticated:", isAuthenticated);
-  console.log("refreshTokensMutation.isPending:", refreshTokensMutation.isPending);
-  console.log("refreshTokensMutation.isError:", refreshTokensMutation.isError);
-
   // useEffect(() => {
   //   if (!isAuthenticated) {
   //     const idToken = readCookie(CONFIGS.ID_TOKEN_COOKIE_NAME);

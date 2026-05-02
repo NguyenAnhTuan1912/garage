@@ -1,7 +1,7 @@
 import { API } from "@/api";
 
 // Import types
-import type { TSignInReqPayload } from "./type";
+import type { TSignInReqPayload, TSignInResPayload } from "./type";
 
 const api = new API({
   baseURL: import.meta.env.VITE_MAINSERVER_BASEURL,
@@ -14,7 +14,7 @@ const api = new API({
  */
 export async function signIn(params: TSignInReqPayload) {
   const path = "/api/auth/login";
-  return api.post(path, {
+  return api.post<TSignInResPayload>(path, {
     username: params.username,
     password: params.password,
   });

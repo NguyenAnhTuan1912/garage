@@ -16,15 +16,15 @@ export default function DashboardLayout() {
     <SidebarProvider className="flex relative">
       <ManagementSidebar setCurrentNavTitle={setCurrentNavTitle} />
       <SidebarInset className="flex-1 max-h-full overflow-y-auto">
-        <header className="sticky top-0 flex h-16 shrink-0 items-center gap-2 border-b px-4 bg-background">
+        <header className="sticky top-0 flex shrink-0 items-center gap-2 border-b px-4 py-3 bg-background">
           <SidebarTrigger className="-ml-1" />
           <Separator
             orientation="vertical"
-            className="mr-2 data-[orientation=vertical]:h-4"
+            className="mr-2 data-[orientation=vertical]:h-full"
           />
           <h1>{currentNavTitle}</h1>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4">
+        <div className="@container/main flex flex-col gap-4 p-4 h-[calc(100dvh-57px)] overflow-y-auto">
           <Outlet />
         </div>
       </SidebarInset>

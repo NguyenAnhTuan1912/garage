@@ -1,12 +1,17 @@
 import { create } from "zustand";
 
+// Import utils
+import * as BrowserStorage from "@/utils/browser_storage";
+
 // Import types
 import type { TUserState, TUserStateSetters } from "./type";
+
+const USER_STORAGE_KEY = "user";
 
 function getInitialState(): TUserState {
   return {
     isAuthenticated: false,
-    data: undefined,
+    data: BrowserStorage.getItem(USER_STORAGE_KEY) || undefined,
   };
 }
 
@@ -24,6 +29,8 @@ export const userStateSetters: TUserStateSetters = {
   setUser(user) {
     useUserState.setState((state) => {
       state.data = user;
+
+      BrowserStorage.setItem(USER_STORAGE_KEY, user);
 
       return { ...state };
     });

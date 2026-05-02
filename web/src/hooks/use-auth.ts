@@ -43,7 +43,7 @@ export function useAuth() {
         })
         .catch((e: AxiosError) => {
           const responseData = e.response?.data as any;
-          const msg = responseData?.error?.message || e.response?.statusText;
+          const msg = responseData?.error?.message || responseData?.message || e.response?.statusText;
           toast.error(msg, {
             toasterId: "global",
           });
