@@ -6,20 +6,22 @@ import { Prisma } from "@prisma/client";
 import {
   EEmailErrMessage,
   EUserNameErrMessage,
-  EDisplayNameErrMessage,
-  EFullNameErrMessage,
-  EPasswordErrMessage,
 } from "src/common/errors/message-code";
+import { CursorMetaDto } from "src/common/dtos/cursor-meta.dto";
+
+// Import entities
+import { User } from "../entities/user.entity";
 
 export class FindManyUserDto {
-  @ApiProperty()
+  @ApiProperty({ required: false, default: 0 })
   @IsOptional()
   skip?: number = 0;
 
-  @ApiProperty()
+  @ApiProperty({ required: false, default: 10 })
   @IsOptional()
   take?: number = 10;
 
+  @ApiProperty({ required: false, default: "" })
   @IsOptional()
   cursor?: string;
 
@@ -40,5 +42,23 @@ export class FindUserDto {
   @ApiProperty()
   @IsString({ message: EUserNameErrMessage.INVALID })
   @IsOptional()
-  username?: string
+  username?: string;
+}
+
+export class FindManyUserResponseDto {
+  @ApiProperty({ type: [User] })
+  data: User[];
+
+  @ApiProperty()
+  meta: CursorMetaDto;
+}
+
+export class FindUserResponseDto {
+  @ApiProperty()
+  data: User;
+}
+
+export class RemoveUserResponseDto {
+  @ApiProperty()
+  data: boolean;
 }

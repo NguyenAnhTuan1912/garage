@@ -1,8 +1,12 @@
 import { Module } from "@nestjs/common";
+import { APP_GUARD } from "@nestjs/core";
 import { ConfigModule } from "@nestjs/config";
 
 // Import controllers
 import { AppController } from "./app.controller";
+
+// Import guards
+import { CombinedAuthGuard } from "./modules/auth/guards/combined-auth.guard";
 
 // Import modules
 import { UsersModule } from "./modules/users/users.module";
@@ -13,7 +17,7 @@ import { AppService } from "./app.service";
 
 @Module({
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, { provide: APP_GUARD, useClass: CombinedAuthGuard }],
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,

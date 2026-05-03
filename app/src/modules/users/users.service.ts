@@ -3,7 +3,6 @@ import bcrypt from "bcrypt";
 import { Prisma } from "@prisma/client";
 
 // Import common
-import { PrismaService } from "src/common/services/prisma.service";
 import { NotFoundException } from "src/common/errors/class/not-found-error";
 import { ExistedException } from "src/common/errors/class/bad-request";
 import {
@@ -21,6 +20,10 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 // Import entities
 import { User } from "./entities/user.entity";
 
+// Import services
+import { PrismaService } from "src/common/services/prisma.service";
+import { HashService } from "src/common/services/hash.service";
+
 interface IUsersServiceSchemaMap {
   find: {
     input: { params: FindUserDto; options?: TActionOptions };
@@ -28,7 +31,10 @@ interface IUsersServiceSchemaMap {
   };
   findMany: {
     input: { params: FindManyUserDto; options?: TActionOptions };
-    output: { users: User[]; meta: { hasNextPage: boolean; cursor: string | null; } };
+    output: {
+      users: User[];
+      meta: { hasNextPage: boolean; cursor: string | null };
+    };
   };
   insert: {
     input: { params: CreateUserDto; options?: TActionOptions };
@@ -49,19 +55,10 @@ interface IUsersServiceSchemaMap {
 
 @Injectable()
 export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap> {
-  constructor(private prisma: PrismaService) {}
-
-  /**
-   * Hash the given password.
-   * @param password
-   * @returns
-   */
-  async hashPassword(password: string) {
-    const round = 12;
-    const salt = await bcrypt.genSalt(round);
-    const hashed = bcrypt.hash(password, salt);
-    return hashed;
-  }
+  constructor(
+    private prisma: PrismaService,
+    private hashService: HashService
+  ) {}
 
   async insert(input: IUsersServiceSchemaMap["insert"]["input"]) {
     const { params, options } = input;
@@ -78,7 +75,7 @@ export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap>
     }
 
     const { password, ...data } = params;
-    const hashed = await this.hashPassword(password);
+    const hashed = this.hashService.hash(password);
     const draftUser = new User({
       ...data,
       hashedPassword: hashed,
@@ -112,26 +109,22 @@ export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap>
       take: take + 1,
       where: {
         ...where,
-        ...(createdAt && id ? {
-          OR: [
-            { createdAt: { lt: createdAt } },
-            {
-              AND: [
-                { createdAt: createdAt },
-                { id: { lt: id } },
+        ...(createdAt && id
+          ? {
+              OR: [
+                { createdAt: { lt: createdAt } },
+                {
+                  AND: [{ createdAt: createdAt }, { id: { lt: id } }],
+                },
               ],
-            },
-          ],
-        } : {}),
+            }
+          : {}),
       },
-      orderBy: [
-        { createdAt: 'desc' },
-        { id: 'desc' },
-      ],
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
     });
 
     const hasNextPage = users.length > take;
-    
+
     const results = hasNextPage ? users.slice(0, take) : users;
 
     let nextCursor: string | null = null;
@@ -145,7 +138,7 @@ export class UsersService implements IBaseCRUDServiceMap<IUsersServiceSchemaMap>
       meta: {
         hasNextPage,
         cursor: nextCursor,
-      }
+      },
     };
   }
 

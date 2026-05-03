@@ -2,9 +2,13 @@ import "module-alias/register";
 import "dotenv/config";
 
 import { NestFactory, Reflector } from "@nestjs/core";
-import { ValidationPipe, ClassSerializerInterceptor } from "@nestjs/common";
+import {
+  ValidationPipe,
+  ClassSerializerInterceptor,
+  ConsoleLogger,
+} from "@nestjs/common";
 import { SwaggerModule, DocumentBuilder } from "@nestjs/swagger";
-import cookieParser from 'cookie-parser';
+import cookieParser from "cookie-parser";
 
 // Import common
 import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
@@ -13,7 +17,13 @@ import { AllExceptionsFilter } from "./common/filters/all-exceptions.filter";
 import { AppModule } from "./app.module";
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, {
+    logger: new ConsoleLogger({
+      logLevels: ["error", "fatal", "warn"],
+      colors: true,
+      prefix: "GarageApi",
+    }),
+  });
 
   app.use(cookieParser());
   app.useGlobalPipes(
