@@ -6,7 +6,7 @@ export class NotFoundException extends HttpException {
       {
         status: HttpStatus.NOT_FOUND,
         error: "Entity Not Found",
-        code: `${entityName.toUpperCase()}_NOT_FOUND`,
+        code: `NOT_FOUND_${entityName.toUpperCase()}`,
       },
       HttpStatus.NOT_FOUND
     );
