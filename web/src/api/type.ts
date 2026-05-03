@@ -24,7 +24,6 @@ type TKindOfOnFulfilled = {
 
 type TErrorData = {
   message: string;
-  code: string;
   success: boolean;
   statusCode: number;
   timestamp: string;
