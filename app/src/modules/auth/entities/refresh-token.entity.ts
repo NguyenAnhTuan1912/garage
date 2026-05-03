@@ -10,7 +10,11 @@ export class RefreshToken implements PrismaRefreshToken {
   userId: string;
 
   @ApiProperty()
+  @Exclude()
   value: string;
+
+  @ApiProperty()
+  tokenKey: string;
 
   @ApiProperty()
   createdAt: Date = new Date();

@@ -12,10 +12,13 @@ import { UsersModule } from "../users/users.module";
 // Import services
 import { PrismaService } from "src/common/services/prisma.service";
 import { AuthService } from "./auth.service";
-import { RefreshTokenService } from "./refresh-token.service";
+import { RefreshTokenService } from "./refresh-token/refresh-token.service";
+import { KeyHasherService, HashService } from "src/common/services/hash.service";
+import { ApiKeyService } from "./api-key/api-key.service";
 
 // Import strategies
 import { JwtStrategy } from "./strategies/jwt.strategy";
+import { ApiKeyStrategy } from "./strategies/api-key.strategy";
 
 @Module({
   imports: [
@@ -29,7 +32,16 @@ import { JwtStrategy } from "./strategies/jwt.strategy";
     UsersModule,
   ],
   controllers: [AuthController],
-  providers: [AuthService, RefreshTokenService, JwtStrategy, PrismaService],
+  providers: [
+    AuthService,
+    RefreshTokenService,
+    JwtStrategy,
+    ApiKeyStrategy,
+    PrismaService,
+    ApiKeyService,
+    KeyHasherService,
+    HashService
+  ],
   exports: [AuthService],
 })
 export class AuthModule {}

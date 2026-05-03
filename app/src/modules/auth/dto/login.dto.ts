@@ -10,6 +10,9 @@ import {
   EPasswordErrMessage,
 } from "src/common/errors/message-code";
 
+// Import entities
+import { User } from "src/modules/users/entities/user.entity";
+
 export class LoginDto {
   @ApiProperty()
   @IsString({ message: EUserNameErrMessage.INVALID })
@@ -22,4 +25,20 @@ export class LoginDto {
   @ApiProperty()
   @MinLength(6, { message: EPasswordErrMessage.MIN_LENGTH })
   password: string;
+}
+
+export class AuthResultDto {
+  @ApiProperty()
+  accessToken: string;
+
+  @ApiProperty()
+  refreshToken: string;
+
+  @ApiProperty()
+  user: User;
+};
+
+export class AuthResponseDto {
+  @ApiProperty()
+  data: AuthResultDto;
 }

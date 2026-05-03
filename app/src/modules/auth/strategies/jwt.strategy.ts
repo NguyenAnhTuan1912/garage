@@ -4,6 +4,9 @@ import { ExtractJwt, Strategy } from "passport-jwt";
 
 import "dotenv/config";
 
+// Import entities
+import { User } from "src/modules/users/entities/user.entity";
+
 // Import types
 import type { Request } from "express";
 
@@ -15,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
         (request: Request) => {
           return request?.cookies?.["accessToken"];
         },
+        ExtractJwt.fromAuthHeaderAsBearerToken(),
       ]),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET!,
@@ -22,6 +26,10 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
   }
 
   async validate(payload: any) {
-    return { id: payload.sub, email: payload.email, role: payload.role };
+    return new User({
+      id: payload.sub,
+      email: payload.email,
+      role: payload.role,
+    });
   }
 }
