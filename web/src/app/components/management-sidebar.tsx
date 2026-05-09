@@ -1,0 +1,117 @@
+import { useEffect, useRef } from "react";
+import { Link, useLocation } from "react-router";
+
+// Import configs
+import { RouteConfigs } from "@/shared/config/routes";
+
+// Import components
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarRail,
+  SidebarFooter
+} from "@/shared/components/ui/sidebar";
+import { NavUser } from "./nav-user";
+
+export type TNavMenuItem = {
+  title: string;
+  url: string;
+  childrens: TNavMenuItem[];
+  isActive?: string;
+};
+
+export const navData = {
+  navMain: [
+    {
+      title: "Main Menu",
+      url: "/",
+      childrens: [
+        {
+          title: "Home",
+          url: RouteConfigs.Home.Path,
+        },
+        {
+          title: "Collections",
+          url: RouteConfigs.Collection.Prefix,
+        },
+        {
+          title: "My Profile",
+          url: RouteConfigs.Profile.Prefix,
+        },
+      ],
+    },
+    {
+      title: "Account",
+      url: "#",
+      childrens: [
+        {
+          title: "Settings",
+          url: RouteConfigs.Setting.Prefix,
+        },
+      ],
+    },
+  ] as TNavMenuItem[],
+};
+
+export function ManagementSidebar({
+  setCurrentNavTitle,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & {
+  setCurrentNavTitle(title: string): void;
+}) {
+  const location = useLocation();
+
+  const matchTitleRef = useRef("");
+
+  useEffect(() => {
+    setCurrentNavTitle(matchTitleRef.current);
+  }, [location.pathname]);
+
+  return (
+    <Sidebar {...props} className="absolute">
+      <SidebarHeader>
+        <div className="px-3">
+          <h1 className="font-bold text-lg">Garage</h1>
+        </div>
+      </SidebarHeader>
+      <SidebarContent>
+        {/* We create a SidebarGroup for each parent. */}
+        {navData.navMain.map((item) => (
+          <SidebarGroup key={item.title}>
+            <SidebarGroupLabel>{item.title}</SidebarGroupLabel>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                {item.childrens.map((child) => {
+                  const isActive = location.pathname === child.url;
+
+                  if (isActive) {
+                    matchTitleRef.current = child.title;
+                  }
+
+                  return (
+                    <SidebarMenuItem key={child.title}>
+                      <SidebarMenuButton asChild isActive={isActive}>
+                        <Link to={child.url}>{child.title}</Link>
+                      </SidebarMenuButton>
+                    </SidebarMenuItem>
+                  );
+                })}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        ))}
+      </SidebarContent>
+      <SidebarRail />
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
+    </Sidebar>
+  );
+}

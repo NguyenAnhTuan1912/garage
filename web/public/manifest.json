@@ -1,0 +1,23 @@
+{
+  "manifest_version": 3,
+  "name": "Garage Tools",
+  "version": "1.0.0",
+  "description": "The official companion tool for collecting and syncing web data seamlessly into the Garage management system.",
+  "action": {
+    "default_title": "Click to open Garage Tools sidebar"
+  },
+  "side_panel": {
+    "default_path": "extension.html"
+  },
+  "permissions": [
+    "sidePanel", 
+    "storage", 
+    "activeTab"
+  ],
+  "content_scripts": [
+    {
+      "js": ["src/extension/main.tsx"],
+      "matches": ["<all_urls>"]
+    }
+  ]
+}

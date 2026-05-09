@@ -1,10 +1,12 @@
-import path from "path"
-import tailwindcss from "@tailwindcss/vite"
-import react from "@vitejs/plugin-react"
-import { defineConfig } from "vite"
+import path from "path";
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
+import tailwindcss from "@tailwindcss/vite";
+import { crx } from "@crxjs/vite-plugin";
+import manifest from "./public/manifest.json";
 
 export default defineConfig({
-  plugins: [react(), tailwindcss()],
+  plugins: [react(), tailwindcss(), crx({ manifest })],
   resolve: {
     alias: [
       {
@@ -38,16 +40,13 @@ export default defineConfig({
     ],
   },
   server: {
-    port: 5500,
-    proxy: {
-      // Proxy các request bắt đầu bằng /api sang Backend NestJS
-      '/api': {
-        target: 'http://localhost:10000', // Port mặc định của NestJS
-        changeOrigin: true,
-        // Nếu backend của bạn đã có sẵn prefix /api thì không cần rewrite
-        // Nếu backend chưa có /api, hãy dùng dòng dưới:
-        // rewrite: (path) => path.replace(/^\/api/, '') 
-      },
+    port: 5600,
+    strictPort: true,
+    hmr: {
+      port: 5600,
     },
-  }
+  },
+  build: {
+    outDir: "dist-extension",
+  },
 });
