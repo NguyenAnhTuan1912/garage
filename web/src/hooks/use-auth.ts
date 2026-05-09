@@ -13,6 +13,9 @@ import {
   useRefreshTokensMutation,
 } from "@/modules/auth/query";
 
+// Import helpers / utils
+import * as CookiesUtils from "@/utils/cookies";
+
 // Import types
 import type { AxiosError } from "axios";
 
@@ -31,6 +34,8 @@ export function useAuth() {
 
     userStateSetters.setUser(user);
     userStateSetters.setIsAuthenticated(true);
+    // Navigate to Home
+    navigate(RouteConfigs.Home.Path);
   }, [meQuery.data]);
 
   useEffect(() => {
@@ -53,10 +58,21 @@ export function useAuth() {
     }
   }, [meQuery.isError]);
 
+  const signout = function() {
+    userStateSetters.setUser(undefined);
+    userStateSetters.setIsAuthenticated(false);
+
+    CookiesUtils.removeCookie("accessToken");
+    CookiesUtils.removeCookie("refreshToken");
+
+    navigate(RouteConfigs.SignIn.Path);
+  }
+
   return {
     isAuthenticated,
     user,
     signInMutation,
     refreshTokensMutation,
+    signout
   };
 }

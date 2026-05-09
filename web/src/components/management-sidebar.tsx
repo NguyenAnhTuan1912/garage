@@ -16,7 +16,9 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
+  SidebarFooter
 } from "@/components/ui/sidebar";
+import { NavUser } from "./nav-user";
 
 export type TNavMenuItem = {
   title: string;
@@ -74,7 +76,11 @@ export function ManagementSidebar({
 
   return (
     <Sidebar {...props} className="absolute">
-      <SidebarHeader></SidebarHeader>
+      <SidebarHeader>
+        <div className="px-3">
+          <h1 className="font-bold text-lg">Garage</h1>
+        </div>
+      </SidebarHeader>
       <SidebarContent>
         {/* We create a SidebarGroup for each parent. */}
         {navData.navMain.map((item) => (
@@ -103,6 +109,9 @@ export function ManagementSidebar({
         ))}
       </SidebarContent>
       <SidebarRail />
+      <SidebarFooter>
+        <NavUser />
+      </SidebarFooter>
     </Sidebar>
   );
 }

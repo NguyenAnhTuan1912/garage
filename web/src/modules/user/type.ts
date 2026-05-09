@@ -1,9 +1,16 @@
+export enum EUserRole {
+  USER,
+  ADMIN
+};
+
 export type TUser = {
-  id: number;
-  role: string;
+  id: string;
+  role: EUserRole;
+  email: string;
+  username: string;
+  displayName?: string;
   fullName: string;
-  displayName: string;
-  photo: string;
+  photo?: string;
 };
 
 export type TUserUpdate = Partial<Omit<TUser, "id" | "role">>;
