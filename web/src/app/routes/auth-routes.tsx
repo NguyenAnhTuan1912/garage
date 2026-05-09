@@ -11,6 +11,8 @@ import DashboardLayout from "@/app/layouts/dashboard";
 
 // Import pages
 import HomePage from "@/app/pages/home";
+import AccessControllPage from "@/app/pages/access-control";
+import SettingsPage from "@/app/pages/settings";
 
 // Import types
 import type { RouteObject } from "react-router";
@@ -30,6 +32,14 @@ export const authenticatedRoutes: Array<RouteObject> = [
       {
         path: RouteConfigs.NotFound.Path,
         element: <NotFoundEmpty />,
+      },
+      {
+        path: RouteConfigs.AccessControl.Path,
+        element: <AccessControllPage />,
+      },
+      {
+        path: RouteConfigs.Setting.Path,
+        element: <SettingsPage />,
       },
       {
         path: "*",

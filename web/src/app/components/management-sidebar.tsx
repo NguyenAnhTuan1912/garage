@@ -19,6 +19,7 @@ import {
   SidebarFooter
 } from "@/shared/components/ui/sidebar";
 import { NavUser } from "./nav-user";
+import Text from "@/shared/components/text";
 
 export type TNavMenuItem = {
   title: string;
@@ -52,6 +53,10 @@ export const navData = {
       url: "#",
       childrens: [
         {
+          title: "Access Control",
+          url: RouteConfigs.AccessControl.Prefix,
+        },
+        {
           title: "Settings",
           url: RouteConfigs.Setting.Prefix,
         },
@@ -78,7 +83,7 @@ export function ManagementSidebar({
     <Sidebar {...props} className="absolute">
       <SidebarHeader>
         <div className="px-3">
-          <h1 className="font-bold text-lg">Garage</h1>
+          <Text variant="h4">Garage</Text>
         </div>
       </SidebarHeader>
       <SidebarContent>

@@ -21,6 +21,10 @@ export const RouteConfigs = {
     Path: "/n",
     Prefix: "/n",
   },
+  AccessControl: {
+    Path: "/ac",
+    Prefix: "/ac"
+  },
   SignIn: {
     Path: "/sign-in",
     Prefix: "/sign-in"

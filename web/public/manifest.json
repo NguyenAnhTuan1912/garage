@@ -16,7 +16,7 @@
   ],
   "content_scripts": [
     {
-      "js": ["src/extension/main.tsx"],
+      "js": ["src/extension/content.ts"],
       "matches": ["<all_urls>"]
     }
   ]

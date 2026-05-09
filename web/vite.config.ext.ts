@@ -6,8 +6,11 @@ import { crx } from "@crxjs/vite-plugin";
 import manifest from "./public/manifest.json";
 
 export default defineConfig({
+  // root: path.resolve(__dirname, "src/extension"),
+  cacheDir: path.resolve(__dirname, "node_modules/.vite_ext"),
   plugins: [react(), tailwindcss(), crx({ manifest })],
   resolve: {
+    dedupe: ["react", "react-dom"],
     alias: [
       {
         find: "@/lib",
@@ -39,14 +42,29 @@ export default defineConfig({
       },
     ],
   },
+  build: {
+    outDir: path.resolve(__dirname, "dist-extension"),
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, "./extension.html"),
+      },
+    },
+  },
   server: {
     port: 5600,
     strictPort: true,
     hmr: {
       port: 5600,
     },
-  },
-  build: {
-    outDir: "dist-extension",
+    proxy: {
+      // Proxy các request bắt đầu bằng /api sang Backend NestJS
+      '/api': {
+        target: 'http://localhost:10000', // Port mặc định của NestJS
+        changeOrigin: true,
+        // Nếu backend của bạn đã có sẵn prefix /api thì không cần rewrite
+        // Nếu backend chưa có /api, hãy dùng dòng dưới:
+        // rewrite: (path) => path.replace(/^\/api/, '') 
+      },
+    },
   },
 });

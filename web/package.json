@@ -4,10 +4,10 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "dev:web": "vite",
+    "dev:web": "vite --config vite.config.ts",
     "dev:ext": "vite --config vite.config.ext.ts",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:ext\"",
-    "build:web": "vite build",
+    "build:web": "vite build --config vite.config.ts",
     "build:ext": "vite build --config vite.config.ext.ts",
     "build:all": "npm run build:web && npm run build:ext",
     "lint": "eslint .",

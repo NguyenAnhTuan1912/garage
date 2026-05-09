@@ -8,9 +8,14 @@ import {
   Delete,
   UseGuards,
   Query,
-  Res
+  Res,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags, ApiOkResponse, ApiOperation } from "@nestjs/swagger";
+import {
+  ApiBearerAuth,
+  ApiTags,
+  ApiOkResponse,
+  ApiOperation,
+} from "@nestjs/swagger";
 import { Role } from "@prisma/client";
 
 // Import common
@@ -19,7 +24,12 @@ import { GetCurrentUser } from "src/common/decorators/current-user.decorator";
 
 // Import dto
 import { LoginDto, AuthResponseDto } from "./dto/login.dto";
-import { UpdateApiKeyDto, ApiKeyResponseDto, ApiKeysResponseDto, FirstTimeCreateApiKeyResponseDto } from "./dto/api-key.dto";
+import {
+  UpdateApiKeyDto,
+  ApiKeyResponseDto,
+  ApiKeysResponseDto,
+  FirstTimeCreateApiKeyResponseDto,
+} from "./dto/api-key.dto";
 import { PerformTokenRefreshDto } from "./dto/refresh-token.dto";
 
 // Import decorators
@@ -86,7 +96,10 @@ export class AuthController {
   @Post("access-token/new")
   @ApiOperation({ summary: "Làm mới lại access token" })
   @ApiOkResponse({ type: AuthResponseDto })
-  async refreshAccessToken(@Body() data: PerformTokenRefreshDto, @Res({ passthrough: true }) response: Response) {
+  async refreshAccessToken(
+    @Body() data: PerformTokenRefreshDto,
+    @Res({ passthrough: true }) response: Response
+  ) {
     if (!data.refreshToken) throw new MissingValueException("refresh_token");
 
     const result = await this.refreshTokenService.refreshAccessToken({
@@ -120,13 +133,13 @@ export class AuthController {
   async getApiKeys(@GetCurrentUser() user: User) {
     const apiKeys = await this.apiKeyService.findMany({
       params: {
-        userId: user.id
-      }
+        userId: user.id,
+      },
     });
 
     return {
-      data: apiKeys
-    }
+      data: apiKeys,
+    };
   }
 
   @Post("api-keys")
@@ -184,6 +197,15 @@ export class AuthController {
       },
     });
 
+    return {
+      data: true,
+    };
+  }
+
+  @Post("api-keys/connection")
+  @ApiOperation({ summary: "Thử kết nối tới server bằng Api Key" })
+  @ApiOkResponse({ type: Boolean })
+  async testApiKeyConnection(@GetCurrentUser() user: User) {
     return {
       data: true,
     };

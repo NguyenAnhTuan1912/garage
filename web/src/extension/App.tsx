@@ -8,7 +8,6 @@ export function App() {
   const [currentUrl, setCurrentUrl] = useState<string>("");
 
   useEffect(() => {
-    // Lấy URL của tab đang active để sẵn sàng "collect" dữ liệu
     const getActiveTab = async () => {
       const tabs = await browser.tabs.query({
         active: true,
