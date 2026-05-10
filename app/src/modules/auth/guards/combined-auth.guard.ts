@@ -10,8 +10,6 @@ export class CombinedAuthGuard extends AuthGuard(["jwt", "api-key"]) {
   }
 
   canActivate(context: ExecutionContext) {
-    console.log("RUN COMBINED GUARD (JWT & API KEY)");
-
     const isPublic = this.reflector.getAllAndOverride<boolean>(IS_PUBLIC_KEY, [
       context.getHandler(),
       context.getClass(),

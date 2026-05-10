@@ -55,6 +55,17 @@ export class AllExceptionsFilter implements ExceptionFilter {
     } else if (exception instanceof HttpException) {
       status = exception.getStatus();
       errorResponse = exception.getResponse();
+
+      // Standardize error object
+      if (typeof errorResponse === "object") {
+        (errorResponse as any).code = Array.isArray(
+          (errorResponse as any).message
+        )
+          ? (errorResponse as any).message[0]
+          : (errorResponse as any).message;
+
+        (errorResponse as any).message = exception.message;
+      }
     }
 
     // 4. "Phẳng hóa" (Flatten) dữ liệu để đảm bảo format nhất quán
@@ -65,8 +76,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
 
     this.logError(exception, request, status);
 
-    // 5. Trả về response cuối cùng
-    response.status(status).json({
+    const resBody = {
       error: {
         success: false,
         statusCode: status,
@@ -74,7 +84,10 @@ export class AllExceptionsFilter implements ExceptionFilter {
         timestamp: new Date().toISOString(),
         path: ctx.getRequest().url,
       },
-    });
+    };
+
+    // 5. Trả về response cuối cùng
+    response.status(status).json(resBody);
   }
 
   private logError(exception: any, request: Request, status: number) {

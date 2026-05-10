@@ -28,8 +28,8 @@ async function bootstrap() {
   app.use(cookieParser());
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // Loại bỏ các field lạ không có trong DTO
-      transform: true, // Tự động convert data sang kiểu đúng trong DTO
+      whitelist: true,
+      transform: true,
     })
   );
   app.useGlobalInterceptors(new ClassSerializerInterceptor(app.get(Reflector)));

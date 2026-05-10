@@ -35,6 +35,7 @@ import { PerformTokenRefreshDto } from "./dto/refresh-token.dto";
 // Import decorators
 import { Public } from "src/common/decorators/public.decorator";
 import { Roles } from "src/common/decorators/roles.decorator";
+import { GetRefreshToken } from "src/common/decorators/cookies.decorator";
 
 // Import entities
 import { User } from "../users/entities/user.entity";
@@ -97,9 +98,11 @@ export class AuthController {
   @ApiOperation({ summary: "Làm mới lại access token" })
   @ApiOkResponse({ type: AuthResponseDto })
   async refreshAccessToken(
-    @Body() data: PerformTokenRefreshDto,
+    @GetRefreshToken() data: PerformTokenRefreshDto,
     @Res({ passthrough: true }) response: Response
   ) {
+    console.log("Data:", data);
+
     if (!data.refreshToken) throw new MissingValueException("refresh_token");
 
     const result = await this.refreshTokenService.refreshAccessToken({

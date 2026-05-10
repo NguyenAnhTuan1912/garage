@@ -19,10 +19,12 @@ export class LoginDto {
   username: string;
 
   @ApiProperty()
+  @IsString({ message: EEmailErrMessage.INVALID })
   @IsOptional()
   email?: string;
 
   @ApiProperty()
+  @IsString({ message: EPasswordErrMessage.INVALID })
   @MinLength(6, { message: EPasswordErrMessage.MIN_LENGTH })
   password: string;
 }

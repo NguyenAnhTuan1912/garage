@@ -68,18 +68,15 @@ export class ApiKeyService implements IApiKeyServiceAction {
     const { params } = input;
     let apiKey: ApiKey | null = null;
 
-    console.log("1. Find api key");
     try {
       apiKey = await this.find({ params: { plain: params.plain } });
     } catch (error) {
-      console.log("1. NOT_FOUND_APIKEY");
       return {
         status: false,
         code: "NOT_FOUND_APIKEY",
       };
     }
 
-    console.log("2. Check if key is still active");
     // 1. Check if key is still active
     if (!apiKey.isActive)
       return {
@@ -87,7 +84,6 @@ export class ApiKeyService implements IApiKeyServiceAction {
         code: "INACTIVE_APIKEY",
       };
 
-    console.log("3. Compare key value");
     // 2. Compare key value
     if (!this.keyHasherService.compare(params.plain, apiKey.value))
       return {
@@ -95,7 +91,6 @@ export class ApiKeyService implements IApiKeyServiceAction {
         code: "INVALID_APIKEY",
       };
 
-    console.log("4. Check expire time");
     // 3. Check expire time
     if (apiKey.expireAt && isAfter(new Date(), apiKey.expireAt))
       return {
