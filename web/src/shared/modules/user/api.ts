@@ -1,11 +1,7 @@
-import { API } from "@/shared/api";
+import { api } from "@/shared/api";
 
 // Import types
 import type { TUser, TUserUpdate } from "./type";
-
-const api = new API({
-  baseURL: import.meta.env.VITE_MAINSERVER_BASEURL,
-});
 
 /**
  * Get personal user information.

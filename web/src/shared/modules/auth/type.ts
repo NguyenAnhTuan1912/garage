@@ -7,5 +7,17 @@ export type TSignInReqPayload = {
 
 export type TSignInResPayload = {
   accessToken: string;
+  refreshToken: string;
   user: TUser;
+};
+
+export type TRefreshTokensPayload = TSignInResPayload;
+
+export type TApiKey = {
+  id: string;
+  value?: string;
+  isActive: boolean;
+  expireAt: string;
+  createdAt: string;
+  updatedAt: string;
 };

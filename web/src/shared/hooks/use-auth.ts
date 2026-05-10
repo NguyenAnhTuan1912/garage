@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { useNavigate } from "react-router";
+import { useNavigate, useLocation } from "react-router";
 
 // Import route configs
 import { RouteConfigs } from "@/shared/config/routes";
@@ -21,6 +21,8 @@ import type { AxiosError } from "axios";
 
 export function useAuth() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const origin = location.state?.from?.pathname || RouteConfigs.Home.Path;
 
   const { isAuthenticated, data: user } = useUserState();
   const meQuery = useMeQuery();
@@ -29,13 +31,14 @@ export function useAuth() {
 
   useEffect(() => {
     const user = meQuery.data?.data.data;
-
-    if (!user) return;
-
-    userStateSetters.setUser(user);
-    userStateSetters.setIsAuthenticated(true);
-    // Navigate to Home
-    navigate(RouteConfigs.Home.Path);
+    if (user) {
+      userStateSetters.setUser(user);
+      userStateSetters.setIsAuthenticated(true);
+      
+      if (location.pathname === RouteConfigs.SignIn.Path) {
+        navigate(origin, { replace: true });
+      }
+    }
   }, [meQuery.data]);
 
   useEffect(() => {

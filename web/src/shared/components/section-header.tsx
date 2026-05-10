@@ -10,7 +10,9 @@ export default function SectionHeader(props: TSectionHeaderProps) {
   return (
     <div>
       <Text variant="h3">{props.title}</Text>
-      <Text variant="body">{props.description}</Text>
+      <Text variant="body" className="[&:not(:first-child)]:mt-0">
+        {props.description}
+      </Text>
     </div>
   );
 }
