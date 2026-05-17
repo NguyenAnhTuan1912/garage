@@ -28,7 +28,7 @@ export class Collection implements PrismaCollection {
   createdBy: string;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt: Date | null;
 
   @ApiProperty()
   @Exclude()

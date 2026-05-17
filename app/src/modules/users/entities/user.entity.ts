@@ -35,7 +35,7 @@ export class User implements PrismaUser {
   createdBy: string | null;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt: Date | null;
 
   @ApiProperty()
   @Exclude()

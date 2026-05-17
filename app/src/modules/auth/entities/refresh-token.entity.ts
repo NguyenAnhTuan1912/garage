@@ -23,7 +23,7 @@ export class RefreshToken implements PrismaRefreshToken {
   createdBy: string | null;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt: Date | null;
 
   @ApiProperty()
   updatedBy: string | null;
