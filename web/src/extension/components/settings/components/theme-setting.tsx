@@ -7,12 +7,13 @@ export default function ThemeSettingSection() {
   return (
     <>
       <section>
-        <Card>
+        <Card className="rounded-xl">
           <CardHeader>
             <div className="flex items-center justify-between">
               <SectionHeader
                 title="Theme"
                 description="Adjust the color theme"
+                size="small"
               />
             </div>
           </CardHeader>

@@ -12,12 +12,12 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 
-export type TEmptyUnderDevelopmentProps = {
+export type TEmptyNoDataProps = {
   hasNavigation?: boolean;
 };
 
-export default function EmptyUnderDevelopment(
-  props: TEmptyUnderDevelopmentProps
+export default function EmptyNoData(
+  props: TEmptyNoDataProps
 ) {
   const navigate = useNavigate();
 
@@ -27,9 +27,9 @@ export default function EmptyUnderDevelopment(
         <EmptyMedia variant="icon">
           <Wrench />
         </EmptyMedia>
-        <EmptyTitle>Under Development</EmptyTitle>
+        <EmptyTitle>No Data</EmptyTitle>
         <EmptyDescription>
-          This feature you are asking for is in under development.
+          There is not data here. Please comeback later.
         </EmptyDescription>
       </EmptyHeader>
       {props.hasNavigation && (

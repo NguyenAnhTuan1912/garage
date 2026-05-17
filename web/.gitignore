@@ -30,6 +30,7 @@ dist-extension
 .env.test.local
 .env.production.local
 .env.local
+.env.extension
 
 # Package locks
 package-lock.json

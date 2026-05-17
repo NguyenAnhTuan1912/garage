@@ -1,8 +1,8 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { Link, useLocation } from "react-router";
 
 // Import configs
-import { RouteConfigs } from "@/shared/config/routes";
+import { RouteConfigs, routeNameByPath } from "@/shared/config/routes";
 
 // Import components
 import {
@@ -16,7 +16,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
   SidebarRail,
-  SidebarFooter
+  SidebarFooter,
 } from "@/shared/components/ui/sidebar";
 import { NavUser } from "./nav-user";
 import Text from "@/shared/components/text";
@@ -73,10 +73,8 @@ export function ManagementSidebar({
 }) {
   const location = useLocation();
 
-  const matchTitleRef = useRef("");
-
   useEffect(() => {
-    setCurrentNavTitle(matchTitleRef.current);
+    setCurrentNavTitle(routeNameByPath[location.pathname]);
   }, [location.pathname]);
 
   return (
@@ -95,10 +93,6 @@ export function ManagementSidebar({
               <SidebarMenu>
                 {item.childrens.map((child) => {
                   const isActive = location.pathname === child.url;
-
-                  if (isActive) {
-                    matchTitleRef.current = child.title;
-                  }
 
                   return (
                     <SidebarMenuItem key={child.title}>

@@ -5,10 +5,10 @@
   "type": "module",
   "scripts": {
     "dev:web": "vite --config vite.config.ts",
-    "dev:ext": "vite --config vite.config.ext.ts",
+    "dev:ext": "vite --config vite.config.ext.ts --mode extension",
     "dev:all": "concurrently \"npm run dev:web\" \"npm run dev:ext\"",
     "build:web": "vite build --config vite.config.ts",
-    "build:ext": "vite build --config vite.config.ext.ts",
+    "build:ext": "vite build --config vite.config.ext.ts --mode extension",
     "build:all": "npm run build:web && npm run build:ext",
     "lint": "eslint .",
     "format": "prettier --write \"**/*.{ts,tsx}\"",

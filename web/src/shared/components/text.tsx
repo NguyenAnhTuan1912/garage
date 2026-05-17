@@ -1,7 +1,7 @@
 import React from "react";
 import { cn } from "@/lib/utils"; // Giả sử bạn có hàm cn của shadcn, nếu không hãy dùng classnames hoặc string template
 
-type TTextVariant =
+export type TTextVariant =
   | "h1"
   | "h2"
   | "h3"
@@ -11,7 +11,7 @@ type TTextVariant =
   | "sub-body"
   | "caption";
 
-interface TTextProps {
+export type TTextProps = {
   variant?: TTextVariant;
   children: React.ReactNode;
   className?: string;

@@ -80,5 +80,5 @@ export async function deleteApiKey(id: string) {
  */
 export async function testConnectionWithApiKey() {
   const path = "/api/auth/api-keys/connection";
-  return api.post<{ data: boolean }>(path, null, { withCredentials: true });
+  return api.post<{ data: boolean }>(path, null);
 }

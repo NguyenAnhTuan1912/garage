@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import browser from "webextension-polyfill";
 
-// Import components
-import EmptyUnderDevelopment from "@/shared/components/empty-under-development";
+// Import routes
+import ExtensionRoutes from "./routes";
 
 export function App() {
   const [currentUrl, setCurrentUrl] = useState<string>("");
@@ -30,9 +30,7 @@ export function App() {
     console.log("Data saved to local storage!");
   };
 
-  return (
-    <EmptyUnderDevelopment />
-  );
+  return <ExtensionRoutes />;
 }
 
 export default App;
