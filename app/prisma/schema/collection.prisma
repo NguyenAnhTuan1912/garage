@@ -12,18 +12,21 @@ model Collection {
     photo       String?
     // Joined fields
     owner       User           @relation("CollectionCreator", fields: [createdBy], references: [id])
-    items       Item[]         @relation("Collection")
+    items       Item[]         @relation("CollectionItems")
     // Audit fields
     createdAt   DateTime       @default(now())
     createdBy   String
-    updatedAt   DateTime       @updatedAt
+    updatedAt   DateTime?
     updatedBy   String?
     deletedAt   DateTime?
     deletedBy   String?
+    // Unsupported fields (features)
+    tsv_search  Unsupported("tsvector")?
 
     @@index([type])
     @@index([topic])
     @@map("collection")
+    @@index([tsv_search], type: Gin, name: "idx_collection_search")
 }
 
 model Item {
@@ -34,11 +37,11 @@ model Item {
     collectionId String
     // Joined fields
     owner        User           @relation("ItemCreator", fields: [createdBy], references: [id])
-    collection   Collection     @relation("Collection", fields: [collectionId], references: [id])
+    collection   Collection     @relation("CollectionItems", fields: [collectionId], references: [id])
     // Audit fields
     createdAt    DateTime       @default(now())
     createdBy    String
-    updatedAt    DateTime       @updatedAt
+    updatedAt    DateTime?
     updatedBy    String?
     deletedAt    DateTime?
     deletedBy    String?

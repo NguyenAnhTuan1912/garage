@@ -7,7 +7,7 @@ model ServiceProvider {
     // Audit fields
     createdAt DateTime  @default(now())
     createdBy String
-    updatedAt DateTime  @updatedAt
+    updatedAt DateTime?
     updatedBy String?
     deletedAt DateTime?
     deletedBy String?
@@ -27,7 +27,7 @@ model Service {
     // Audit fields
     createdAt    DateTime        @default(now())
     createdBy    String
-    updatedAt    DateTime        @updatedAt
+    updatedAt    DateTime?
     updatedBy    String?
     deletedAt    DateTime?
     deletedBy    String?
@@ -45,7 +45,7 @@ model Integration {
     // Audit fields
     createdAt DateTime  @default(now())
     createdBy String
-    updatedAt DateTime  @updatedAt
+    updatedAt DateTime?
     updatedBy String?
     deletedAt DateTime?
     deletedBy String?
