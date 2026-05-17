@@ -14,6 +14,7 @@ import { AuthModule } from "./modules/auth/auth.module";
 
 // Import services
 import { AppService } from "./app.service";
+import { CollectionsModule } from './modules/collections/collections.module';
 
 @Module({
   controllers: [AppController],
@@ -22,8 +23,9 @@ import { AppService } from "./app.service";
     ConfigModule.forRoot({
       isGlobal: true,
     }),
-    UsersModule,
     AuthModule,
+    UsersModule,
+    CollectionsModule,
   ],
 })
 export class AppModule {}

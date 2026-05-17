@@ -23,6 +23,7 @@ export interface ICRUDServiceActionSchemaMap
 export type TActionOptions = {
   includeDeleted?: boolean;
   executorId?: string;
+  readerId?: string;
 };
 
 export interface IBaseCRUDServiceMap<Action extends ICRUDServiceActionSchemaMap> {

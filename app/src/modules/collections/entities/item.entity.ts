@@ -1,38 +1,31 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Exclude } from "class-transformer";
-import { User as PrismaUser, Role as PrismaRole } from "@prisma/client";
+import { $Enums, Item as PrismaItem } from "@prisma/client";
 
-export class User implements PrismaUser {
+export class Item implements PrismaItem {
   @ApiProperty()
   id: string;
 
   @ApiProperty()
-  email: string;
+  title: string;
 
   @ApiProperty()
-  username: string;
-
-  @Exclude()
-  hashedPassword: string;
+  description: string | null;
 
   @ApiProperty()
-  displayName: string | null;
+  content: string;
 
   @ApiProperty()
-  fullName: string;
+  type: $Enums.CollectionType;
 
   @ApiProperty()
-  photo: string | null;
-
-  @ApiProperty({ enum: PrismaRole })
-  role: PrismaRole = PrismaRole.USER;
+  collectionId: string;
 
   @ApiProperty()
   createdAt: Date = new Date();
 
   @ApiProperty()
-  @Exclude()
-  createdBy: string | null;
+  createdBy: string;
 
   @ApiProperty()
   updatedAt: Date;
@@ -49,7 +42,7 @@ export class User implements PrismaUser {
   @Exclude()
   deletedBy: string | null;
 
-  constructor(partial: Partial<User>) {
+  constructor(partial: Partial<Item>) {
     Object.assign(this, partial);
   }
 }

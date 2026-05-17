@@ -13,8 +13,9 @@ model User {
     fullName                String
     photo                   String?
     // Joined fields
-    notes                   Note[]            @relation("NoteCreator")
-    collections             Collection[]      @relation("CollectionCreator")
+    createdNotes            Note[]            @relation("NoteCreator")
+    createdCollections      Collection[]      @relation("CollectionCreator")
+    createdItems            Item[]            @relation("ItemCreator")
     createdServiceProviders ServiceProvider[]
     createdServices         Service[]
     createdIntegrations     Integration[]
