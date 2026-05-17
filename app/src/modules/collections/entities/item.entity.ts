@@ -28,7 +28,7 @@ export class Item implements PrismaItem {
   createdBy: string;
 
   @ApiProperty()
-  updatedAt: Date;
+  updatedAt: Date | null;
 
   @ApiProperty()
   @Exclude()

@@ -13,10 +13,7 @@ import { encodeCursor, decodeCursor } from "src/common/helpers/cursor";
 
 // Import DTO
 import { CreateItemDto } from "../dto/create-item.dto";
-import {
-  FindItemDto,
-  FindManyItemDto,
-} from "../dto/find-item.dto";
+import { FindItemDto, FindManyItemDto } from "../dto/find-item.dto";
 import { UpdateItemDto } from "../dto/update-item.dto";
 
 // Import entities
@@ -59,140 +56,146 @@ export class ItemsService {
   constructor(private prisma: PrismaService) {}
 
   async insert(input: IItemsServiceSchemaMap["insert"]["input"]) {
-      const { params, options } = input;
-      const draftItem = new Item(params);
-  
-      if (options?.executorId) {
-        draftItem.createdBy = options.executorId;
-      }
-  
-      const newItem = await this.prisma.item.create({
-        data: draftItem,
-      });
-  
-      return new Item(newItem);
+    const { params, options } = input;
+    const draftItem = new Item(params);
+
+    if (options?.executorId) {
+      draftItem.createdBy = options.executorId;
     }
-  
-    async findMany(input: IItemsServiceSchemaMap["findMany"]["input"]) {
-      const { params, options } = input;
-      let { take = 10, cursor, ...restParams } = params;
-      const where: Prisma.ItemWhereInput = {
-        ...params.where,
-      };
-  
-      if (options && !options.includeDeleted) {
-        this.prisma.excludeDeleted(where);
-      }
-  
-      if (options && options.readerId) {
-        where.createdBy = options.readerId;
-      }
-  
-      if (restParams.owner) {
-        where.createdBy = restParams.owner;
-      }
-  
-      const [createdAt, id] = cursor ? decodeCursor(cursor) : [null, null];
-      const items = await this.prisma.item.findMany({
-        take: take + 1,
-        where: {
-          ...where,
-          ...(createdAt && id
-            ? {
-                OR: [
-                  { createdAt: { lt: createdAt } },
-                  {
-                    AND: [{ createdAt: createdAt }, { id: { lt: id } }],
-                  },
-                ],
-              }
-            : {}),
-        },
-        orderBy: [{ createdAt: "desc" }, { id: "desc" }],
-      });
-  
-      const hasNextPage = items.length > take;
-  
-      const results = hasNextPage ? items.slice(0, take) : items;
-  
-      let nextCursor: string | null = null;
-      if (results.length > 0 && hasNextPage) {
-        const lastRecord = results[results.length - 1];
-        nextCursor = encodeCursor(lastRecord.id, lastRecord.createdAt);
-      }
-  
-      return {
-        items: items.map((item) => new Item(item)),
-        meta: {
-          hasNextPage,
-          cursor: nextCursor,
-        },
-      };
+
+    const newItem = await this.prisma.item.create({
+      data: {
+        collectionId: draftItem.collectionId,
+        content: draftItem.content,
+        description: draftItem.description,
+        type: draftItem.type,
+        createdBy: draftItem.createdBy,
+      },
+    });
+
+    return new Item(newItem);
+  }
+
+  async findMany(input: IItemsServiceSchemaMap["findMany"]["input"]) {
+    const { params, options } = input;
+    let { take = 10, cursor, ...restParams } = params;
+    const where: Prisma.ItemWhereInput = {
+      ...params.where,
+    };
+
+    if (options && !options.includeDeleted) {
+      this.prisma.excludeDeleted(where);
     }
-  
-    async find(input: IItemsServiceSchemaMap["find"]["input"]) {
-      const { params, options } = input;
-      const { id } = params;
-      const where: Prisma.ItemWhereInput = {
-        OR: [{ id }].filter(
-          (condition) => Object.values(condition)[0] !== undefined
-        ),
-      };
-  
-      if (options && !options.includeDeleted) {
-        this.prisma.excludeDeleted(where);
-      }
-  
-      if (options && options.readerId) {
-        where.createdBy = options.readerId;
-      }
-  
-      const item = await this.prisma.item.findFirst({
-        where,
-      });
-  
-      if (!item) {
-        throw new NotFoundException("item");
-      }
-  
-      return new Item(item);
+
+    if (options && options.readerId) {
+      where.createdBy = options.readerId;
     }
-  
-    async update(input: IItemsServiceSchemaMap["update"]["input"]) {
-      const { params, options } = input;
-  
-      // Find item
-      const item = await this.find({ params: { id: params.id }, options });
-  
-      if (!item) {
-        throw new NotFoundException("item");
-      }
-  
-      const newItem = await this.prisma.item.update({
-        data: {
-          ...params.data,
-          updatedBy: options?.executorId,
-        },
-        where: { id: params.id, deletedAt: null },
-      });
-  
-      return new Item(newItem);
+
+    if (restParams.owner) {
+      where.createdBy = restParams.owner;
     }
-  
-    async remove(input: IItemsServiceSchemaMap["remove"]["input"]) {
-      const { params, options } = input;
-      // Find item
-      const item = await this.find({ params: { id: params.id }, options });
-  
-      if (!item) {
-        throw new NotFoundException("item");
-      }
-  
-      await this.prisma.item.update({
-        data: { deletedAt: new Date() },
-        where: { id: params.id },
-      });
-  
-      return true;
+
+    const [createdAt, id] = cursor ? decodeCursor(cursor) : [null, null];
+    const items = await this.prisma.item.findMany({
+      take: take + 1,
+      where: {
+        ...where,
+        ...(createdAt && id
+          ? {
+              OR: [
+                { createdAt: { lt: createdAt } },
+                {
+                  AND: [{ createdAt: createdAt }, { id: { lt: id } }],
+                },
+              ],
+            }
+          : {}),
+      },
+      orderBy: [{ createdAt: "desc" }, { id: "desc" }],
+    });
+
+    const hasNextPage = items.length > take;
+
+    const results = hasNextPage ? items.slice(0, take) : items;
+
+    let nextCursor: string | null = null;
+    if (results.length > 0 && hasNextPage) {
+      const lastRecord = results[results.length - 1];
+      nextCursor = encodeCursor(lastRecord.id, lastRecord.createdAt);
     }
+
+    return {
+      items: items.map((item) => new Item(item)),
+      meta: {
+        hasNextPage,
+        cursor: nextCursor,
+      },
+    };
+  }
+
+  async find(input: IItemsServiceSchemaMap["find"]["input"]) {
+    const { params, options } = input;
+    const { id } = params;
+    const where: Prisma.ItemWhereInput = {
+      OR: [{ id }].filter(
+        (condition) => Object.values(condition)[0] !== undefined
+      ),
+    };
+
+    if (options && !options.includeDeleted) {
+      this.prisma.excludeDeleted(where);
+    }
+
+    if (options && options.readerId) {
+      where.createdBy = options.readerId;
+    }
+
+    const item = await this.prisma.item.findFirst({
+      where,
+    });
+
+    if (!item) {
+      throw new NotFoundException("item");
+    }
+
+    return new Item(item);
+  }
+
+  async update(input: IItemsServiceSchemaMap["update"]["input"]) {
+    const { params, options } = input;
+
+    // Find item
+    const item = await this.find({ params: { id: params.id }, options });
+
+    if (!item) {
+      throw new NotFoundException("item");
+    }
+
+    const newItem = await this.prisma.item.update({
+      data: {
+        ...params.data,
+        updatedBy: options?.executorId,
+      },
+      where: { id: params.id, deletedAt: null },
+    });
+
+    return new Item(newItem);
+  }
+
+  async remove(input: IItemsServiceSchemaMap["remove"]["input"]) {
+    const { params, options } = input;
+    // Find item
+    const item = await this.find({ params: { id: params.id }, options });
+
+    if (!item) {
+      throw new NotFoundException("item");
+    }
+
+    await this.prisma.item.update({
+      data: { deletedAt: new Date() },
+      where: { id: params.id },
+    });
+
+    return true;
+  }
 }
