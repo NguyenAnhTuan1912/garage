@@ -66,8 +66,16 @@ export class CollectionsService {
       draftCollection.createdBy = options.executorId;
     }
 
+    console.log("Collection:", draftCollection);
+
     const newCollection = await this.prisma.collection.create({
-      data: draftCollection,
+      data: {
+        topic: draftCollection.topic,
+        type: draftCollection.type,
+        title: draftCollection.title,
+        description: draftCollection.description,
+        createdBy: draftCollection.createdBy,
+      },
     });
 
     return new Collection(newCollection);

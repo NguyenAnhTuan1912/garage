@@ -55,9 +55,22 @@ export class CollectionsController {
   @Get("types")
   @Roles(Role.ADMIN, Role.USER)
   async getTypes() {
-    return {
-      data: $Enums.CollectionType
+    const result: { label: string; value: string }[] = [];
+
+    for (const key in $Enums.CollectionType) {
+      const label =
+        key[0] +
+        key.slice(1, key.length).toLocaleLowerCase().split("_").join(" ");
+
+      result.push({
+        label,
+        value: $Enums.CollectionType[key],
+      });
     }
+
+    return {
+      data: result,
+    };
   }
 
   @Post()
