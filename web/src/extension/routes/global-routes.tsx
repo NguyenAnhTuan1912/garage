@@ -7,12 +7,16 @@ import { ExtensionRouteConfigs } from "@/shared/config/routes";
 import Home from "../components/home";
 import Workbench from "../components/workbench";
 import Collections from "../components/collections";
+import CollectionItems from "../components/collection-items";
 import AccessControlSettings from "../components/access-control-settings";
 import EmptyUnderDevelopment from "@/shared/components/empty-under-development";
 import Settings from "../components/settings";
 
 // Import layouts
 import GlobalWrapperLayout from "../layouts/global-wrapper";
+
+// Import helpers / utils
+import * as StringUtils from "@/shared/utils/string";
 
 // Import types
 import type { RouteObject } from "react-router";
@@ -35,8 +39,22 @@ export const globalRoutes: Array<RouteObject> = [
         element: <Workbench />,
       },
       {
+        path: StringUtils.formatURL(
+          ExtensionRouteConfigs.Collection.Path,
+          ExtensionRouteConfigs.Item.Path
+        ),
+        element: <Navigate to={ExtensionRouteConfigs.WorkBench.Path} replace />,
+      },
+      {
         path: ExtensionRouteConfigs.Collection.Path,
         element: <Collections />,
+      },
+      {
+        path: StringUtils.formatURL(
+          ExtensionRouteConfigs.Collection.Path,
+          ExtensionRouteConfigs.Item.Prefix
+        ),
+        element: <CollectionItems />,
       },
       {
         path: ExtensionRouteConfigs.AccessControl.Path,
