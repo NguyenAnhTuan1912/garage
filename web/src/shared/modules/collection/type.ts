@@ -1,3 +1,6 @@
+// Import types
+import type { TFindManyParams } from "@/shared/types/api";
+
 export type TCollection = {
   id: string;
   type: string;
@@ -20,10 +23,21 @@ export type TCollectionType = {
   value: string;
 };
 
+export type TFindManyCollectionsParams = {
+  title?: string;
+  owner?: string;
+  topic?: string;
+  type?: string;
+} & TFindManyParams;
+
 export type TCreateCollection = Omit<TCollection, "id">;
+
+export type TCreateCollectionItem = Omit<TItem, "id">;
 
 export type TUpdateCollection = Partial<TCreateCollection>;
 
-export type TCreateItem = Omit<TItem, "id">;
-
-export type TUpdateItem = Partial<TItem>;
+export type TUpdateCollectionItem = Partial<
+  Omit<TCreateCollectionItem, "collectionId">
+> & {
+  collectionId: string;
+};

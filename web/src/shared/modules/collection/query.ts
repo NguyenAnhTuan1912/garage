@@ -9,7 +9,14 @@ import {
   getCollections,
   getCollection,
   createCollection,
+  updateCollection,
+  getCollectionItems,
+  createCollectionItem,
+  updateCollectionItem,
 } from "./api";
+
+// Import types
+import type { TFindManyCollectionsParams } from "./type";
 
 export const useCollectionTypesQuery = () =>
   useQuery({
@@ -18,10 +25,10 @@ export const useCollectionTypesQuery = () =>
     retry: false,
   });
 
-export const useCollectionsQuery = () =>
+export const useCollectionsQuery = (params?: TFindManyCollectionsParams) =>
   useQuery({
-    queryKey: ["collections"],
-    queryFn: getCollections,
+    queryKey: ["collections", params],
+    queryFn: () => getCollections({ params }),
     retry: false,
   });
 
@@ -32,6 +39,13 @@ export const useCollectionQuery = (id: string) =>
     retry: false,
   });
 
+export const useCollectionItemsQuery = (collectionId: string) =>
+  useQuery({
+    queryKey: ["collection-items", collectionId],
+    queryFn: () => getCollectionItems(collectionId),
+    retry: false,
+    enabled: !!collectionId,
+  });
 
 export const useCreateCollectionMutation = () =>
   useMutation({
@@ -39,6 +53,34 @@ export const useCreateCollectionMutation = () =>
     onSuccess() {
       queryClient.invalidateQueries({
         queryKey: ["collections"],
+      });
+    },
+  });
+
+export const useUpdateCollectionMutation = () =>
+  useMutation({
+    mutationFn: updateCollection,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["collections"] });
+    },
+  });
+
+export const useCreateCollectionItemMutation = () =>
+  useMutation({
+    mutationFn: createCollectionItem,
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ["collection-items"],
+      });
+    },
+  });
+
+export const useUpdateCollectionItemMutation = () =>
+  useMutation({
+    mutationFn: updateCollectionItem,
+    onSuccess() {
+      queryClient.invalidateQueries({
+        queryKey: ["collection-items"],
       });
     },
   });
