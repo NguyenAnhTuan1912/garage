@@ -37,7 +37,7 @@ export default function Header() {
             size="icon"
             className="rounded-lg"
             onClick={() => {
-              navigate("..");
+              navigate(-1);
             }}
           >
             <ChevronLeft />

@@ -7,11 +7,18 @@ import {
 } from "@/components/ui/accordion";
 import EmptyUnderDevelopment from "@/shared/components/empty-under-development";
 import CollectionManagement from "../collection-management";
+import SiteCollector from "../collection-management/site-collector";
+import WordCollector from "../collection-management/word-collector";
+
+// Import state
+import { useWorkbenchState } from "@/extension/state/workbench";
 
 export default function Workbench() {
+  const { currentSectionName } = useWorkbenchState();
+
   return (
     <>
-      <Accordion type="single" className="rounded-lg" defaultValue="collection-management">
+      <Accordion type="single" className="rounded-lg" defaultValue={currentSectionName}>
         <AccordionItem value="collection-management">
           <AccordionTrigger>Collection Management</AccordionTrigger>
           <AccordionContent className="h-fit">
@@ -22,14 +29,14 @@ export default function Workbench() {
         <AccordionItem value="site-collector">
           <AccordionTrigger>Site Collector</AccordionTrigger>
           <AccordionContent className="h-fit">
-            <EmptyUnderDevelopment />
+            <SiteCollector />
           </AccordionContent>
         </AccordionItem>
 
         <AccordionItem value="word-collector">
           <AccordionTrigger>Word Collector</AccordionTrigger>
           <AccordionContent className="h-fit">
-            <EmptyUnderDevelopment />
+            <WordCollector />
           </AccordionContent>
         </AccordionItem>
 
