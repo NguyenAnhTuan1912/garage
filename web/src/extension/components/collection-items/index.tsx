@@ -1,3 +1,5 @@
+import { useParams } from "react-router";
+
 // Import components
 import { Button } from "@/shared/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -6,21 +8,22 @@ import { Separator } from "@/shared/components/ui/separator";
 import { ScrollArea } from "@/shared/components/ui/scroll-area";
 import SectionHeader from "@/shared/components/section-header";
 import EmptyNoData from "@/shared/components/ui/empty-no-data";
-import CollectionCard from "./components/collection-card";
+import CollectedItemCard from "./components/collected-item-card";
 
 // Import hooks
-import { useCollectionsQuery } from "@/shared/modules/collection/query";
+import { useCollectionItemsQuery } from "@/shared/modules/collection/query";
 
-export default function Collections() {
-  const { data: res } = useCollectionsQuery();
-  const collections = res?.data.data;
+export default function CollectionItems() {
+  const { collectionId } = useParams();
+  const { data: res } = useCollectionItemsQuery(collectionId || "");
+  const items = res?.data.data;
 
   return (
     <div>
       <SectionHeader
         className="px-2"
-        title="Your collections"
-        description="All of your collections will be showed here."
+        title="Your collected items"
+        description="All of your collected items will be showed here."
         size="small"
       />
 
@@ -31,11 +34,11 @@ export default function Collections() {
 
       <Separator className="mt-3 mb-2" />
 
-      {collections ? (
+      {items ? (
         <ScrollArea className="h-full w-full rounded-md">
           <div className="flex flex-col gap-3 px-2 py-1">
-            {collections?.map((collection) => (
-              <CollectionCard key={collection.id} collection={collection} />
+            {items?.map((item) => (
+              <CollectedItemCard key={item.id} item={item} />
             ))}
           </div>
         </ScrollArea>

@@ -1,6 +1,6 @@
 // Import components
-import CreateCollectionForm from "./components/create-collection-form"
+import CollectionForm from "./components/collection-form"
 
 export default function CollectionManagement() {
-  return <div><CreateCollectionForm /></div>
+  return <><CollectionForm /></>
 }

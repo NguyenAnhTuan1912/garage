@@ -11,61 +11,71 @@ import {
   FieldError,
 } from "@/shared/components/ui/field";
 import { Input } from "@/shared/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
 import { Textarea } from "@/shared/components/ui/textarea";
 import { Spinner } from "@/shared/components/ui/spinner";
+import { Separator } from "@/shared/components/ui/separator";
+import { createSearchableSelectWithQuery } from "@/shared/components/searchable-select-with-query";
 
 // Import modules
 import {
+  useCollectionsQuery,
   useCollectionTypesQuery,
-  useCreateCollectionMutation,
+  useCreateCollectionItemMutation,
 } from "@/shared/modules/collection/query";
+
+// Import states
+import { useWorkbenchState } from "@/extension/state/workbench";
 
 // Import types
 import type { AxiosError } from "axios";
-import type { TCreateCollection } from "@/shared/modules/collection/type";
+import type {
+  TCollection,
+  TCreateCollectionItem,
+} from "@/shared/modules/collection/type";
 
-export const createCollectionSchema = z.object({
+const SearchableSelectWithQuery = createSearchableSelectWithQuery(useCollectionsQuery);
+
+export const createCollectionItemSchema = z.object({
+  collectionId: z.uuid(),
   type: z.string({ error: "Collection type is required" }),
-  title: z
-    .string({ error: "Title type is required" })
-    .min(1, "Length of title must be more than 1"),
+  content: z
+    .string({ error: "Content type is required" })
+    .min(1, "Length of content must be more than 1"),
   description: z.string().optional(),
-  topic: z.string().optional(),
-  photo: z.string().optional(),
 });
 
-export default function CreateCollectionForm() {
+export default function SiteCollectorForm() {
   const { data: collectionTypesRes, isPending } = useCollectionTypesQuery();
-  const { mutateAsync: createCollection } = useCreateCollectionMutation();
+  const { mutateAsync: createCollectionItem } =
+    useCreateCollectionItemMutation();
+  const { sectionDefaultFormData } = useWorkbenchState();
 
   const collectionTypes = collectionTypesRes?.data.data;
 
+  const buttonLabel = sectionDefaultFormData ? "Edit" : "Create";
+  const pendingButtonLabel = sectionDefaultFormData ? "Editting" : "Creating";
+
   const form = useForm({
     defaultValues: {
-      title: "",
-      type: "",
-      description: "",
-      topic: "",
-      photo: "",
-    } as TCreateCollection,
+      collectionId: sectionDefaultFormData
+        ? sectionDefaultFormData.collectionId
+        : "",
+      type: sectionDefaultFormData ? sectionDefaultFormData.type : "",
+      description: sectionDefaultFormData
+        ? sectionDefaultFormData.description
+        : "",
+      content: sectionDefaultFormData ? sectionDefaultFormData.content : "",
+    } as TCreateCollectionItem,
     validators: {
-      onSubmit: createCollectionSchema,
+      onSubmit: createCollectionItemSchema,
     },
     onSubmit: async ({ value }) => {
       try {
-        console.log("Value:", value);
+        value.type = collectionTypes?.find(type => type.value === "LINK")?.value || "";
 
-        await createCollection(value);
+        await createCollectionItem(value);
 
-        toast.success("Create collection successfully", {
+        toast.success("Create collection item successfully", {
           toasterId: "global",
         });
 
@@ -74,7 +84,7 @@ export default function CreateCollectionForm() {
         const err = e as AxiosError;
         const data = err.response?.data as any;
 
-        toast.error(data?.error?.message ?? "Failed to create new collection", {
+        toast.error(data?.error?.message ?? "Failed to create new collection item", {
           toasterId: "global",
         });
       }
@@ -90,7 +100,7 @@ export default function CreateCollectionForm() {
       }}
     >
       <form.Field
-        name="title"
+        name="collectionId"
         children={(field) => {
           const isInvalid =
             field.state.meta.isTouched && !field.state.meta.isValid;
@@ -98,7 +108,38 @@ export default function CreateCollectionForm() {
           return (
             <Field data-invalid={isInvalid}>
               <FieldLabel htmlFor={field.name}>
-                <p>Title<sup className="text-red-500">*</sup></p>
+                <p>
+                  Collection<sup className="text-red-500">*</sup>
+                </p>
+              </FieldLabel>
+              <SearchableSelectWithQuery<TCollection>
+                field={field}
+                isInvalid={isInvalid}
+                getItemKey={(item) => item.id}
+                getItemSearchValue={(item) => item.title}
+                getItemValue={(item) => item.id}
+                buildQueryParams={(text) => ({ title: text })}
+              />
+              {isInvalid && <FieldError errors={field.state.meta.errors} />}
+            </Field>
+          );
+        }}
+      />
+
+      <Separator className="my-2" />
+
+      <form.Field
+        name="content"
+        children={(field) => {
+          const isInvalid =
+            field.state.meta.isTouched && !field.state.meta.isValid;
+
+          return (
+            <Field data-invalid={isInvalid}>
+              <FieldLabel htmlFor={field.name}>
+                <p>
+                  Content<sup className="text-red-500">*</sup>
+                </p>
               </FieldLabel>
               <Input
                 className="rounded-lg text-sm"
@@ -108,7 +149,7 @@ export default function CreateCollectionForm() {
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
                 disabled={isPending}
-                placeholder="Title of collection ..."
+                placeholder="Item's content..."
                 aria-invalid={isInvalid}
                 autoComplete="off"
               />
@@ -127,62 +168,18 @@ export default function CreateCollectionForm() {
           return (
             <Field data-invalid={isInvalid}>
               <FieldLabel htmlFor={field.name}>
-                <p>Type<sup className="text-red-500">*</sup></p>
-              </FieldLabel>
-              <Select
-                name={field.name}
-                value={field.state.value}
-                onValueChange={field.handleChange}
-                disabled={isPending}
-              >
-                <SelectTrigger
-                  id={field.name}
-                  className="rounded-lg text-sm"
-                  aria-invalid={isInvalid}
-                >
-                  <SelectValue placeholder="Collection type" />
-                </SelectTrigger>
-                <SelectContent className="rounded-lg text-sm">
-                  <SelectGroup>
-                    {collectionTypes &&
-                      collectionTypes.map((type) => (
-                        <SelectItem
-                          key={type.value}
-                          className="rounded-lg text-sm"
-                          value={type.value}
-                        >
-                          {type.label}
-                        </SelectItem>
-                      ))}
-                  </SelectGroup>
-                </SelectContent>
-              </Select>
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          );
-        }}
-      />
-
-      <form.Field
-        name="topic"
-        children={(field) => {
-          const isInvalid =
-            field.state.meta.isTouched && !field.state.meta.isValid;
-
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel className="text-gray-500" htmlFor={field.name}>
-                Topic {"(Optional)"}
+                <p>
+                  Type<sup className="text-red-500">*</sup>
+                </p>
               </FieldLabel>
               <Input
                 className="rounded-lg text-sm"
                 id={field.name}
                 name={field.name}
-                value={field.state.value}
                 onBlur={field.handleBlur}
+                value={collectionTypes?.find(type => type.value === "LINK")?.value || ""}
                 onChange={(e) => field.handleChange(e.target.value)}
-                disabled={isPending}
-                placeholder="Title of collection ..."
+                disabled={true}
                 aria-invalid={isInvalid}
                 autoComplete="off"
               />
@@ -221,45 +218,16 @@ export default function CreateCollectionForm() {
         }}
       />
 
-      <form.Field
-        name="photo"
-        children={(field) => {
-          const isInvalid =
-            field.state.meta.isTouched && !field.state.meta.isValid;
-
-          return (
-            <Field data-invalid={isInvalid}>
-              <FieldLabel className="text-gray-500" htmlFor={field.name}>
-                Photo's URL {"(Optional)"}
-              </FieldLabel>
-              <Input
-                className="rounded-lg text-sm"
-                id={field.name}
-                name={field.name}
-                value={field.state.value}
-                onBlur={field.handleBlur}
-                onChange={(e) => field.handleChange(e.target.value)}
-                disabled={isPending}
-                placeholder="Title of collection ..."
-                aria-invalid={isInvalid}
-                autoComplete="off"
-              />
-              {isInvalid && <FieldError errors={field.state.meta.errors} />}
-            </Field>
-          );
-        }}
-      />
-
       <FieldSeparator />
 
       <div>
         <Button className="w-full" type="submit">
           {isPending ? (
             <>
-              <Spinner /> Creating ...
+              <Spinner /> {pendingButtonLabel}
             </>
           ) : (
-            "Create"
+            buttonLabel
           )}
         </Button>
       </div>
