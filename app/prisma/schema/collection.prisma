@@ -31,10 +31,10 @@ model Collection {
 
 model Item {
     id           String         @id @default(uuid())
+    collectionId String
     type         CollectionType @default(LINK)
     description  String?
     content      String
-    collectionId String
     // Joined fields
     owner        User           @relation("ItemCreator", fields: [createdBy], references: [id])
     collection   Collection     @relation("CollectionItems", fields: [collectionId], references: [id])

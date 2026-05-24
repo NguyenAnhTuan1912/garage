@@ -104,6 +104,25 @@ export class CollectionsService {
       where.topic = restParams.topic;
     }
 
+    if (restParams.title && restParams.title.trim() !== "") {
+      const searchTerms = restParams.title
+        .trim()
+        .replace(/[&|!():]/g, "") 
+        .split(/\s+/)             
+        .join(" & ");             
+
+      if (searchTerms) {
+        const matchedCollections = await this.prisma.$queryRaw<Array<{ id: string }>>`
+          SELECT id FROM "collection" 
+          WHERE tsv_search @@ to_tsquery('simple', ${searchTerms})
+        `;
+
+        const matchedIds = matchedCollections.map(c => c.id);
+
+        where.id = { in: matchedIds.length > 0 ? matchedIds : ['_no_match_found_'] };
+      }
+    }
+
     const [createdAt, id] = cursor ? decodeCursor(cursor) : [null, null];
     const collections = await this.prisma.collection.findMany({
       take: take + 1,
