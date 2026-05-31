@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import { Link as LinkIcon, Book, Eye, Pencil } from "lucide-react";
+import { toast } from "sonner";
+import { Link as LinkIcon, Book, Pencil } from "lucide-react";
 
 // Import configs
 import { ExtensionRouteConfigs } from "@/shared/config/routes";
@@ -16,12 +17,14 @@ import {
   CardFooter,
 } from "@/shared/components/ui/card";
 
-// Import states
-import { workbenchStateActions } from "@/extension/state/workbench";
-import { EWorkbenchSectionName } from "@/extension/state/workbench/type";
-
 // Import helpers / utils
 import * as StringUtils from "@/shared/utils/string";
+
+// Import shared/components
+import { openConfirmDeleteDialog } from "@/shared/components/confirm-delete-dialog";
+
+// Import shared/modules
+import { useDeleteCollectionItemMutation } from "@/shared/modules/collection/query";
 
 // Import types
 import type { TItem } from "@/shared/modules/collection/type";
@@ -39,9 +42,31 @@ export type TCollectedWordCardProps = {
   item: TItem;
 };
 
-export default function CollectedWordItemCard(
-  props: TCollectedWordCardProps
-) {
+export default function CollectedWordItemCard(props: TCollectedWordCardProps) {
+  const {
+    mutateAsync: deleteCollectionItem,
+    isPending: isCollectionItemDeleting,
+  } = useDeleteCollectionItemMutation();
+
+  const handleDeleteCollection = async function () {
+    const toastId = toast.loading("Deleteing collection...", {
+      toasterId: "global",
+    });
+
+    try {
+      await deleteCollectionItem(props.item.id);
+      toast.success("Delete collection successfully", {
+        id: toastId,
+        toasterId: "global",
+      });
+    } catch (error) {
+      toast.error("Failed to delete collection", {
+        id: toastId,
+        toasterId: "global",
+      });
+    }
+  };
+
   return (
     <Card key={props.item.id} className="rounded-xl">
       <CardHeader>
@@ -77,11 +102,22 @@ export default function CollectedWordItemCard(
               size="xs"
               className="rounded-xl"
               onClick={() => {
-                workbenchStateActions.setCurrnetSectionName(
-                  EWorkbenchSectionName.WordCollector
-                );
-                workbenchStateActions.setSectionDefaultFormData(props.item);
+                openConfirmDeleteDialog({
+                  dialogData: {
+                    titleContainer: {
+                      label: "Delete word",
+                    },
+                    descriptionContainer: {
+                      label:
+                        "This word will be permanently deleted from our server.",
+                    },
+                  },
+                }).then((ok) => {
+                  if (!ok) return;
+                  handleDeleteCollection();
+                });
               }}
+              disabled={isCollectionItemDeleting}
             >
               <Pencil /> Edit
             </Button>

@@ -31,7 +31,7 @@ export default function Collections() {
 
       <Separator className="mt-3 mb-2" />
 
-      {collections ? (
+      {collections && collections.length > 0 ? (
         <ScrollArea className="h-full w-full rounded-md">
           <div className="flex flex-col gap-3 px-2 py-1">
             {collections?.map((collection) => (

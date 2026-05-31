@@ -1,3 +1,4 @@
+import { toast } from "sonner";
 import { Link } from "react-router";
 import { Link as LinkIcon, Book, Eye, Pencil } from "lucide-react";
 
@@ -15,6 +16,12 @@ import {
   CardContent,
   CardFooter,
 } from "@/shared/components/ui/card";
+
+// Import shared/components
+import { openConfirmDeleteDialog } from "@/shared/components/confirm-delete-dialog";
+
+// Import shared/modules
+import { useDeleteCollectionMutation } from "@/shared/modules/collection/query";
 
 // Import states
 import { workbenchStateActions } from "@/extension/state/workbench";
@@ -40,6 +47,28 @@ export type TCollectionCardProps = {
 };
 
 export default function CollectionCard(props: TCollectionCardProps) {
+  const { mutateAsync: deleteCollection, isPending: isCollectionDeleting } =
+    useDeleteCollectionMutation();
+
+  const handleDeleteCollection = async function () {
+    const toastId = toast.loading("Deleteing collection...", {
+      toasterId: "global",
+    });
+
+    try {
+      await deleteCollection(props.collection.id);
+      toast.success("Delete collection successfully", {
+        id: toastId,
+        toasterId: "global",
+      });
+    } catch (error) {
+      toast.error("Failed to delete collection", {
+        id: toastId,
+        toasterId: "global",
+      });
+    }
+  };
+
   return (
     <Card key={props.collection.id} className="rounded-xl">
       <CardHeader>
@@ -62,7 +91,12 @@ export default function CollectionCard(props: TCollectionCardProps) {
               ExtensionRouteConfigs.Item.Prefix
             )}
           >
-            <Button variant="outline" size="xs" className="rounded-xl">
+            <Button
+              variant="outline"
+              size="xs"
+              className="rounded-xl"
+              disabled={isCollectionDeleting}
+            >
               <Eye /> View
             </Button>
           </Link>
@@ -84,10 +118,36 @@ export default function CollectionCard(props: TCollectionCardProps) {
                   props.collection
                 );
               }}
+              disabled={isCollectionDeleting}
             >
               <Pencil /> Edit
             </Button>
           </Link>
+          <Button
+            variant="destructive"
+            size="xs"
+            className="rounded-xl"
+            onClick={() => {
+              openConfirmDeleteDialog({
+                dialogData: {
+                  titleContainer: {
+                    label: "Delete collection",
+                  },
+                  descriptionContainer: {
+                    label:
+                      "This collection will be permanently deleted from our server.",
+                  },
+                },
+                checkDeleteValue: props.collection.title,
+              }).then((ok) => {
+                if (!ok) return;
+                handleDeleteCollection();
+              });
+            }}
+            disabled={isCollectionDeleting}
+          >
+            Remove
+          </Button>
         </div>
       </CardFooter>
     </Card>

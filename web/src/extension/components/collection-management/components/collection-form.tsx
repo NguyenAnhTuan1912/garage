@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+import { AxiosError } from "axios";
 import { useForm } from "@tanstack/react-form";
 import { toast } from "sonner";
 import * as z from "zod";
@@ -26,14 +28,18 @@ import { Spinner } from "@/shared/components/ui/spinner";
 import {
   useCollectionTypesQuery,
   useCreateCollectionMutation,
+  useUpdateCollectionMutation,
 } from "@/shared/modules/collection/query";
 
 // Import states
 import { useWorkbenchState } from "@/extension/state/workbench";
 
 // Import types
-import type { AxiosError } from "axios";
-import type { TCreateCollection } from "@/shared/modules/collection/type";
+import type {
+  TCreateCollection,
+  TUpdateCollection,
+} from "@/shared/modules/collection/type";
+import type { TApiHandlerOptions } from "@/shared/types/api-handler";
 
 export const createCollectionSchema = z.object({
   type: z.string({ error: "Collection type is required" }),
@@ -48,46 +54,89 @@ export const createCollectionSchema = z.object({
 export default function CollectionForm() {
   const { data: collectionTypesRes, isPending } = useCollectionTypesQuery();
   const { mutateAsync: createCollection } = useCreateCollectionMutation();
+  const { mutateAsync: updateCollection } = useUpdateCollectionMutation();
   const { sectionDefaultFormData } = useWorkbenchState();
 
   const collectionTypes = collectionTypesRes?.data.data;
   const buttonLabel = sectionDefaultFormData ? "Edit" : "Create";
   const pendingButtonLabel = sectionDefaultFormData ? "Editting" : "Creating";
+  const isInEditMode = Boolean(sectionDefaultFormData);
+
+  const handleFormSubmit = async function (
+    fn: any,
+    options: TApiHandlerOptions
+  ) {
+    const toastId = toast.loading(options.toast?.loadingMsg);
+
+    try {
+      await fn();
+
+      toast.success(options.toast?.successMsg, {
+        id: toastId,
+        toasterId: "global",
+      });
+    } catch (e) {
+      if (e instanceof AxiosError) {
+        const err = e as AxiosError;
+        const data = err.response?.data as any;
+
+        toast.error(data?.error?.message ?? options.toast?.errorMsg, {
+          id: toastId,
+          toasterId: "global",
+        });
+      }
+    }
+  };
 
   const form = useForm({
     defaultValues: {
-      title: sectionDefaultFormData ? sectionDefaultFormData.title : "",
-      type: sectionDefaultFormData ? sectionDefaultFormData.type : "",
-      description: sectionDefaultFormData
-        ? sectionDefaultFormData.description
-        : "",
-      topic: sectionDefaultFormData ? sectionDefaultFormData.topic : "",
-      photo: sectionDefaultFormData ? sectionDefaultFormData.photo : "",
-    } as TCreateCollection,
+      title: sectionDefaultFormData?.title || "",
+      type: sectionDefaultFormData?.type || "",
+      description: sectionDefaultFormData?.description ?? "",
+      topic: sectionDefaultFormData?.topic ?? "",
+      photo: sectionDefaultFormData?.photo ?? "",
+    } as TCreateCollection | TUpdateCollection,
     validators: {
       onSubmit: createCollectionSchema,
     },
     onSubmit: async ({ value }) => {
-      try {
-        console.log("Value:", value);
-
-        await createCollection(value);
-
-        toast.success("Create collection successfully", {
-          toasterId: "global",
-        });
-
-        form.reset();
-      } catch (e) {
-        const err = e as AxiosError;
-        const data = err.response?.data as any;
-
-        toast.error(data?.error?.message ?? "Failed to create new collection", {
-          toasterId: "global",
-        });
+      if (isInEditMode) {
+        handleFormSubmit(
+          async () =>
+            updateCollection({
+              id: sectionDefaultFormData.id,
+              data: value as TUpdateCollection,
+            }),
+          {
+            toast: {
+              loadingMsg: "Updating collection ...",
+              successMsg: "Updated collection successfully",
+              errorMsg: "Failed to update collection",
+            },
+          }
+        );
+      } else {
+        handleFormSubmit(
+          async () => createCollection(value as TCreateCollection),
+          {
+            toast: {
+              loadingMsg: "Creating collection ...",
+              successMsg: "Created collection successfully",
+              errorMsg: "Failed to create collection",
+            },
+          }
+        );
       }
+
+      form.reset();
     },
   });
+
+  useEffect(() => {
+    return function () {
+      form.reset();
+    };
+  }, []);
 
   return (
     <form

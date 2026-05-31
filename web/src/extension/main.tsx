@@ -9,6 +9,7 @@ import "@/shared/index.css";
 // Import components
 import { Toaster } from "@/shared/components/ui/sonner";
 import { ThemeProvider } from "@/shared/components/theme-provider.tsx";
+import ConfirmDeleteDialog from "@/shared/components/confirm-delete-dialog.tsx";
 
 import { queryClient } from "@/shared/config/query-client.ts";
 
@@ -21,6 +22,7 @@ createRoot(document.getElementById("root")!).render(
           <App />
         </ThemeProvider>
       </MemoryRouter>
+      <ConfirmDeleteDialog />
     </QueryClientProvider>
   </StrictMode>
 );

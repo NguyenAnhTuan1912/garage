@@ -116,7 +116,13 @@ export default function SiteCollectorForm() {
                 field={field}
                 isInvalid={isInvalid}
                 getItemKey={(item) => item.id}
-                getItemSearchValue={(item) => item.title}
+                // getItemLabel={(item) => (
+                //   <div className="flex flex-col">
+                //     <p>{item.title}</p>
+                //     <p className="text-muted-foreground text-xs">Topic: {item.topic}</p>
+                //   </div>
+                // )}
+                getItemLabel={(item) => item.title}
                 getItemValue={(item) => item.id}
                 buildQueryParams={(text) => ({ title: text })}
               />

@@ -11,14 +11,24 @@ import SiteCollector from "../collection-management/site-collector";
 import WordCollector from "../collection-management/word-collector";
 
 // Import state
-import { useWorkbenchState } from "@/extension/state/workbench";
+import {
+  useWorkbenchState,
+  workbenchStateActions,
+} from "@/extension/state/workbench";
 
 export default function Workbench() {
   const { currentSectionName } = useWorkbenchState();
 
   return (
     <>
-      <Accordion type="single" className="rounded-lg" defaultValue={currentSectionName}>
+      <Accordion
+        type="single"
+        className="rounded-lg"
+        value={currentSectionName}
+        onValueChange={(value) => {
+          workbenchStateActions.setCurrnetSectionName(value);
+        }}
+      >
         <AccordionItem value="collection-management">
           <AccordionTrigger>Collection Management</AccordionTrigger>
           <AccordionContent className="h-fit">

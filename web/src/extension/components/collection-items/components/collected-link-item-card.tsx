@@ -1,5 +1,6 @@
 import { Link } from "react-router";
-import { Link as LinkIcon, Book, Eye, Pencil } from "lucide-react";
+import { toast } from "sonner";
+import { Link as LinkIcon, Book, Pencil } from "lucide-react";
 
 // Import configs
 import { ExtensionRouteConfigs } from "@/shared/config/routes";
@@ -23,6 +24,12 @@ import { EWorkbenchSectionName } from "@/extension/state/workbench/type";
 // Import helpers / utils
 import * as StringUtils from "@/shared/utils/string";
 
+// Import shared/components
+import { openConfirmDeleteDialog } from "@/shared/components/confirm-delete-dialog";
+
+// Import shared/modules
+import { useDeleteCollectionItemMutation } from "@/shared/modules/collection/query";
+
 // Import types
 import type { TItem } from "@/shared/modules/collection/type";
 
@@ -39,9 +46,31 @@ export type TCollectedLinkCardProps = {
   item: TItem;
 };
 
-export default function CollectedLinkItemCard(
-  props: TCollectedLinkCardProps
-) {
+export default function CollectedLinkItemCard(props: TCollectedLinkCardProps) {
+  const {
+    mutateAsync: deleteCollectionItem,
+    isPending: isCollectionItemDeleting,
+  } = useDeleteCollectionItemMutation();
+
+  const handleDeleteCollection = async function () {
+    const toastId = toast.loading("Deleteing collection...", {
+      toasterId: "global",
+    });
+
+    try {
+      await deleteCollectionItem(props.item.id);
+      toast.success("Delete collection successfully", {
+        id: toastId,
+        toasterId: "global",
+      });
+    } catch (error) {
+      toast.error("Failed to delete collection", {
+        id: toastId,
+        toasterId: "global",
+      });
+    }
+  };
+
   return (
     <Card key={props.item.id} className="rounded-xl">
       <CardHeader>
@@ -82,10 +111,35 @@ export default function CollectedLinkItemCard(
                 );
                 workbenchStateActions.setSectionDefaultFormData(props.item);
               }}
+              disabled={isCollectionItemDeleting}
             >
               <Pencil /> Edit
             </Button>
           </Link>
+          <Button
+            variant="destructive"
+            size="xs"
+            className="rounded-xl"
+            onClick={() => {
+              openConfirmDeleteDialog({
+                dialogData: {
+                  titleContainer: {
+                    label: "Delete link",
+                  },
+                  descriptionContainer: {
+                    label:
+                      "This link will be permanently deleted from our server.",
+                  },
+                },
+              }).then((ok) => {
+                if (!ok) return;
+                handleDeleteCollection();
+              });
+            }}
+            disabled={isCollectionItemDeleting}
+          >
+            Remove
+          </Button>
         </div>
       </CardFooter>
     </Card>

@@ -116,7 +116,7 @@ export default function WordCollectorForm() {
                 field={field}
                 isInvalid={isInvalid}
                 getItemKey={(item) => item.id}
-                getItemSearchValue={(item) => item.title}
+                getItemLabel={(item) => item.title}
                 getItemValue={(item) => item.id}
                 buildQueryParams={(text) => ({ title: text })}
               />
