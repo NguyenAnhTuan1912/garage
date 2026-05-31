@@ -12,8 +12,13 @@
   "permissions": [
     "sidePanel", 
     "storage", 
-    "activeTab"
+    "activeTab",
+    "contextMenus"
   ],
+  "background": {
+    "service_worker": "src/extension/background.ts",
+    "type": "module"
+  },
   "content_scripts": [
     {
       "js": ["src/extension/content.ts"],

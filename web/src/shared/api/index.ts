@@ -20,8 +20,6 @@ if (isExtension) {
     const browser = (await import("webextension-polyfill")).default;
     const apiKeyItem = await browser.storage.local.get("api-key");
     const apiKey = apiKeyItem["api-key"] as string;
-
-    console.log("APIKEY:", apiKey);
     
     req.headers.set("X-API-KEY", apiKey);
     return req;

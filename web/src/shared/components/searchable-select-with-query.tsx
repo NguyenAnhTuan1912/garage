@@ -21,7 +21,7 @@ import type { TResPayload } from "../api/type";
 export type TSearchableSelectWithQueryProps<TItem = any> = {
   field: any;
   isInvalid?: boolean;
-  getItemSearchValue(item: TItem): string;
+  getItemLabel(item: TItem): any;
   getItemKey(item: TItem): string;
   getItemValue(item: TItem): string;
   buildQueryParams(text: string): any;
@@ -88,7 +88,7 @@ export function createSearchableSelectWithQuery(
                     className="rounded-lg text-sm"
                     value={props.getItemValue(item)}
                   >
-                    {props.getItemSearchValue(item)}
+                    {props.getItemLabel(item)}
                   </SelectItem>
                 ))
               ) : (

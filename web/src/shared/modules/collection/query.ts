@@ -13,6 +13,8 @@ import {
   getCollectionItems,
   createCollectionItem,
   updateCollectionItem,
+  deleteCollection,
+  deleteCollectionItem,
 } from "./api";
 
 // Import types
@@ -65,6 +67,14 @@ export const useUpdateCollectionMutation = () =>
     },
   });
 
+export const useDeleteCollectionMutation = () =>
+  useMutation({
+    mutationFn: deleteCollection,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["collections"] });
+    },
+  });
+
 export const useCreateCollectionItemMutation = () =>
   useMutation({
     mutationFn: createCollectionItem,
@@ -82,5 +92,13 @@ export const useUpdateCollectionItemMutation = () =>
       queryClient.invalidateQueries({
         queryKey: ["collection-items"],
       });
+    },
+  });
+
+export const useDeleteCollectionItemMutation = () =>
+  useMutation({
+    mutationFn: deleteCollectionItem,
+    onSuccess() {
+      queryClient.invalidateQueries({ queryKey: ["collection-items"] });
     },
   });

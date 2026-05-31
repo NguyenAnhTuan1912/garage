@@ -51,6 +51,15 @@ export function toString(o: { [key: string]: any }, opt?: TToStringOptions) {
   return str;
 }
 
+const isPlainObject = (item: any): boolean => {
+  return (
+    item &&
+    typeof item === "object" &&
+    !Array.isArray(item) &&
+    !(item instanceof Date)
+  );
+};
+
 /**
  * Use this function to update deeply a object.
  * @param o
@@ -58,16 +67,28 @@ export function toString(o: { [key: string]: any }, opt?: TToStringOptions) {
  * @param opt
  * @returns
  */
-export function updateObject(o: any, data: any, opt?: TUpdateObjectOptions) {
-  for (const key in data) {
-    if (typeof data[key] === "object" && typeof o[key] === "object") {
-      updateObject(o[key], data[key], opt);
-      continue;
-    }
+export function updateObject(
+  o: any,
+  data: any,
+  opt?: TUpdateObjectOptions
+): any {
+  if (!isPlainObject(o) || !isPlainObject(data)) {
+    return o;
+  }
 
-    if (opt && opt.canOverrideValues === true) o[key] = data[key];
-    else if (!o[key]) {
-      o[key] = data[key];
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      if (isPlainObject(data[key]) && isPlainObject(o[key])) {
+        updateObject(o[key], data[key], opt);
+        continue;
+      }
+
+      if (opt?.canOverrideValues === true) {
+        o[key] = data[key];
+      }
+      else if (o[key] === undefined || o[key] === null) {
+        o[key] = data[key];
+      }
     }
   }
 

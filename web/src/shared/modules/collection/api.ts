@@ -48,6 +48,11 @@ export async function updateCollection({
   return api.patch<TCollection>(path, data, { withCredentials: true });
 }
 
+export async function deleteCollection(id: string) {
+  const path = `/api/collections/${id}`;
+  return api.delete<boolean>(path, { withCredentials: true });
+}
+
 export async function getCollectionItems(collectionId: string) {
   const path = "/api/items";
   return api.get<TItem[]>(path, {
@@ -70,4 +75,9 @@ export async function updateCollectionItem({
 }) {
   const path = `/api/items/${id}`;
   return api.patch<TCollection>(path, data, { withCredentials: true });
+}
+
+export async function deleteCollectionItem(id: string) {
+  const path = `/api/items/${id}`;
+  return api.delete<boolean>(path, { withCredentials: true });
 }
